@@ -37,4 +37,26 @@ class Character(DefaultCharacter):
         # Initial HP
         self.db.hp = 100
 
-    
+    def at_before_move(self, dest):
+
+        """
+        Checks the room doesn't have any objects with mIsBlocking property
+        """
+        isBlocked = False
+
+        # Search all objects in room
+        allObjects = (con for con in dest.contents)
+
+        # Filter out just things
+        allBlockingObjects = []
+
+        for con in allObjects:
+            if (hasattr(con.db, 'mIsBlocking') and con.db.mIsBlocking):
+                allBlockingObjects.append(con)
+                self.msg("Something blocks your path.")# % con.db.name(self))
+
+        if (len(allBlockingObjects) != 0):
+            return False
+
+        # Otherwise just do normal movement.
+        return super(Character, self).at_before_move(dest)
