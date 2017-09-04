@@ -7,9 +7,10 @@ is setup to be the "default" character type created by the default
 creation commands.
 
 """
-from evennia import DefaultCharacter
+from mobjects.mech_base_characters import MechBaseCharacter 
+import re
 
-class Character(DefaultCharacter):
+class Character(MechBaseCharacter):
     """
     The Character defaults to reimplementing some of base Object's hook methods with the
     following functionality:
@@ -30,33 +31,3 @@ class Character(DefaultCharacter):
 
     """
     pass
-
-    def at_object_creation(self):
-        "This is called when object is first created, only."
-
-        # Initial HP
-        self.db.hp = 100
-
-    def at_before_move(self, dest):
-
-        """
-        Checks the room doesn't have any objects with mIsBlocking property
-        """
-        isBlocked = False
-
-        # Search all objects in room
-        allObjects = (con for con in dest.contents)
-
-        # Filter out just things
-        allBlockingObjects = []
-
-        for con in allObjects:
-            if (hasattr(con.db, 'mIsBlocking') and con.db.mIsBlocking):
-                allBlockingObjects.append(con)
-                self.msg("Something blocks your path.")# % con.db.name(self))
-
-        if (len(allBlockingObjects) != 0):
-            return False
-
-        # Otherwise just do normal movement.
-        return super(Character, self).at_before_move(dest)

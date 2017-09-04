@@ -16,6 +16,19 @@ own cmdsets by inheriting from them or directly from `evennia.CmdSet`.
 
 from evennia import default_cmds
 
+# Overloaded move commands
+from commands import movecommands
+
+# Testing out look overriding.
+# I want to modify the look command to show the objects when
+# doing "look <dir>"
+# Also maybe change the "Exits north(#52), ..." to something like
+# "Exits north(#52)[Blocked by a tree], ..."
+class CmdLookOverride(default_cmds.CmdLook):
+    def func(self):
+        self.caller.msg("YOU DID LOOK OVERRIDE!")
+        return super(CmdLookOverride, self).func()
+    
 class CharacterCmdSet(default_cmds.CharacterCmdSet):
     """
     The `CharacterCmdSet` contains general in-game commands like `look`,
@@ -32,6 +45,17 @@ class CharacterCmdSet(default_cmds.CharacterCmdSet):
         #
         # any commands you add below will overload the default ones.
         #
+        self.add(movecommands.CmdExitErrorNorth())
+        self.add(movecommands.CmdExitErrorSouth())
+        self.add(movecommands.CmdExitErrorWest())
+        self.add(movecommands.CmdExitErrorEast())
+        self.add(movecommands.CmdExitErrorNorthEast())
+        self.add(movecommands.CmdExitErrorSouthEast())
+        self.add(movecommands.CmdExitErrorNorthWest())
+        self.add(movecommands.CmdExitErrorSouthWest())
+
+        # Override the look to see what would happen.
+        self.add(CmdLookOverride())
 
 
 class PlayerCmdSet(default_cmds.PlayerCmdSet):

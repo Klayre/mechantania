@@ -34,6 +34,39 @@ from evennia.settings_default import *
 # This is the name of your game. Make it catchy!
 SERVERNAME = "Mechantania"
 
+# open to the internet: 4000, 4001, 4002
+# closed to the internet (internal use): 5000, 5001
+TELNET_PORTS = [4000]
+WEBSOCKET_CLIENT_PORT = 4001
+WEBSERVER_PORTS = [(80, 5001)]
+AMP_PORT = 5000
+
+ipaddress = '73.71.243.41' 
+#WEBSOCKET_CLIENT_INTERFACE = ipaddress
+#TELNET_INTERFACES = [ipaddress]
+
+SSH_PORTS = [8022]
+SSH_INTERFACES = [ipaddress]
+
+
+# security measures (optional)
+#TELNET_INTERFACES = ['203.0.113.0']
+#WEBSOCKET_CLIENT_INTERFACE = '203.0.113.0'
+#ALLOWED_HOSTS = [".mymudgame.com"]
+
+# uncomment to take server offline
+# LOCKDOWN_MODE = True
+
+# Register with game index (see games.evennia.com for first setup)
+#GAME_DIRECTORY_LISTING = {
+#    'game_status': 'pre-alpha',
+#    'game_website': 'http://mymudgame.com:4002',
+#    'listing_contact': 'me@mymudgame.com',
+#    'telnet_hostname': 'mymudgame.com',
+#    'telnet_port': 4000,
+#    'short_description': "The official Mygame.",
+#    'long_description':'Mygame is ...'
+#}
 
 ######################################################################
 # Settings given in secret_settings.py override those in this file.

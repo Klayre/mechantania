@@ -10,9 +10,9 @@ the other types, you can do so by adding this as a multiple
 inheritance.
 
 """
-from mobjects.mech_base_objects import MechBaseObjects
+from evennia import DefaultObject
 
-class Object(MechBaseObject):
+class MechBaseObject(DefaultObject):
     """
     This is the root typeclass object, implementing an in-game Evennia
     game object, such as having a location, being able to be

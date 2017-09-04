@@ -18,4 +18,11 @@ class Room(DefaultRoom):
     See examples/object.py for a list of
     properties and methods available on all Objects.
     """
-    pass
+
+    # Returns if the room is blocked by an object or not.
+    def get_blocking_objects(self):
+
+        # Search the room's objects for any blocking object.
+        return [obj for obj in self.contents_get() if
+                        hasattr(obj.db, 'mIsBlocking') and obj.db.mIsBlocking]
+
