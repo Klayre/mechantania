@@ -46,7 +46,7 @@ ipaddress = '73.71.243.41'
 #TELNET_INTERFACES = [ipaddress]
 
 SSH_PORTS = [8022]
-SSH_INTERFACES = [ipaddress]
+#SSH_INTERFACES = [ipaddress]
 
 
 # security measures (optional)

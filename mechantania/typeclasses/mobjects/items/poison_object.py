@@ -14,17 +14,16 @@ Create this poison with
 
  @create/drop temp.objects.poison_object.Poison
 """
-from evennia import DefaultObject
+from typeclasses.mobjects.mech_base_objects import MechBaseObject
 
-from mscripts.poison_script import DefaultCmdSet as poisonCmdSet
+from commands.items.poison_commands import DefaultCmdSet as poisonCmdSet
 from mscripts.poison_script import PoisonScript
 
 #
 #  Poison definition
 #
 
-# Inherit from DefaultObject
-class Poison(DefaultObject):
+class Poison(MechBaseObject):
 
     def at_object_creation(self):
         """
@@ -53,9 +52,19 @@ class Poison(DefaultObject):
             pobject.msg("You can't drink from an empty bottle...")
             return
 
-        if (pobject.db.hp == None):
+        if (pobject.db.mech_character_stats_container == None):
+            pobject.msg("You can't drink this poison, apparently you have no "
+                        "stats... are you even alive?")
+            return
+
+        currHp = pobject.db.mech_character_stats_container.get_value("hp_curr")
+        if (currHp == None):
+
+            pobject.msg("You can't drink this poison, apparently you have no"
+                        "HP... are you even alive?")
             # Why is this called on a non-player?
             return
+
 
         # Attach the poison script to the player
         pobject.scripts.add(PoisonScript)

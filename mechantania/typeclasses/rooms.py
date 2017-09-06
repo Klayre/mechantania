@@ -5,10 +5,10 @@ Rooms are simple containers that has no location of their own.
 
 """
 
-from evennia import DefaultRoom
+from mobjects.mech_base_rooms import MechBaseRoom
 
 
-class Room(DefaultRoom):
+class Room(MechBaseRoom):
     """
     Rooms are like any Object, except their location is None
     (which is default). They also use basetype_setup() to
@@ -18,11 +18,4 @@ class Room(DefaultRoom):
     See examples/object.py for a list of
     properties and methods available on all Objects.
     """
-
-    # Returns if the room is blocked by an object or not.
-    def get_blocking_objects(self):
-
-        # Search the room's objects for any blocking object.
-        return [obj for obj in self.contents_get() if
-                        hasattr(obj.db, 'mIsBlocking') and obj.db.mIsBlocking]
-
+    pass

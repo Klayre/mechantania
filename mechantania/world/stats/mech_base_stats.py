@@ -8,7 +8,7 @@ etc.
 
 #from mobjects.mech_base_objects import MechBaseObjects
 
-class MechStatData():
+class MechStatData(object):
     """
     MechStatData
 
@@ -19,14 +19,18 @@ class MechStatData():
     this and redefine __hash__ and __eq__.
     """
 
-    def __init__(self, nameStr, val):
+    def __init__(self, nameStr, val, metadata = None):
         self.name = nameStr
         self.value = val
+        self.metadata = metadata
 
     def __hash__(self):
         return hash((self.name))
 
     def __eq__(self, other):
+        if (other == None):
+            # TODO : Figure out how to get around this
+            return False
         if (type(other) == str):
             return (self.name) == (other)
         else:
@@ -41,85 +45,98 @@ class MechStatData():
     def __str__(self):
         return self.__repr__()
 
-## TODO : Remove the "_other_" functionality.  have this only be a container,
-## and add a stats handler class if you really want to be able to merge and
-## stuff.
-class MechBaseStatContainer():
+# Subclass this in order to get stat-specific functionality.
+class MechBaseStatContainer(object):
     """
     MechBaseStatContainer
 
     The root base stats.
     """
 
-    def __init__(self, initialStats = {}):#, objAttached):
-#        obj = objAttached
+    def __init__(self, name, initialStats = {}):
 
         # Initialize stats data to empty dictionary.
         self.stats_data = {}
 
-        # Other stats objects which will be merged into this one.
-        # This way, if two stats objects have a stat with the same name,
-        # when getting this stat the two will be added.
-        self.other_stats_objects = []
-        
+        self.name = name
+
         for k in initialStats.keys():
-            self.add_stats_data_object(MechStatData(k, initialStats[k]))
+            initStat = initialStats[k]
+            # Will add the value associated with the key.
+            # The value can be either a MechStatData object or
+            # a scalar value, in which case a new MechStatData will
+            # be created internally with None for metadata
+            self.add(k, initStat)
 
     def __str__(self):
         # So that when examining attributes this will pretty-print things
-        retStr = "["
+        retStr = self.name + " -> ["
         for msd_key in self.stats_data.keys():
             retStr += " {0} ".format(self.stats_data[msd_key])
         retStr += "]"
 
         return retStr
 
-    def has_other_stats_handler(self, otherStatsHandler):
-
-        if (otherStatsHandler == self):
-            return True
-
-        hasHandler = False
-        for obj in self.other_stats_objects:
-            if (obj.has_other_stats_handler(otherStatsHandler)):
-                hasHandler = True
-
-        return hasHandler
-
-    def add_stats_data_object(self, mechStatData):
+    def add(self, nameStr, value, metaData = None):
         """
         add
 
-        Accepts a MechStatsData object
+        Accepts name, value, and meta data.  Used to create
+        a new stat.
+        
+        Args:
+            nameStr - A string representing the stat name
+            value - A value associated with the stat name
+            metaData - Any metadata object or value.
         """
+        inMechStatData = None
+
+        if (type(value) == MechStatData):
+            inMechStatData = value
+        else:
+            # Create new MechStatsData class
+            inMechStatData = MechStatData(nameStr, value, metaData)
+
+        self.add_stats_data_object(inMechStatData)
+
+    def add_stats_data_object(self, mechStatData):
+        if (mechStatData in self.stats_data):
+            # Skip if already exists.
+            return
 
         self.stats_data[mechStatData] = mechStatData
 
-    def add_other_stats_container(self, otherMechStatContainer):
-        if (self == otherMechStatContainer):
-            return
-
-        # If we already have this stat handler, or if any of the subclasses has
-        # it,
-        # dont add
-        if (self.has_other_stats_handler(otherMechStatContainer)):
-            return
-
-        self.other_stats_objects.append(otherMechStatContainer)
-
-    def get_value(self, nameStr, combined=True):
+    # Gets the value
+    def get(self, nameStr):
         """
         get
 
         Gets a MechStatsData object
         """
-        stats = self.stats_data[nameStr]
+        retVal = self.stats_data.get(nameStr)
 
-        totVal = stats.value
+        if (retVal != None):
+            return retVal.value
 
-        if combined and (len(self.other_stats_objects) != 0):
-            for obj in self.other_stats_objects:
-                if (obj.get_value(nameStr, combined=True)):
-                    totVal += obj.get_value(nameStr)
+        return None
 
-        return totVal 
+    def get_stats_data_object(self, nameStr):
+        return self.stats_data.get(nameStr)
+
+    def set(self, nameStr, value):
+        # Check if contains
+        stats = self.stats_data.get(nameStr)
+
+        if (stats != None):
+            stats.value = value
+
+    def set_from_stats_data_object(self, mechStatData):
+        statsData = self.stats_data.get(mechStatData)
+
+        if (statsData != None):
+            self.stats_data[mechStatData] = mechStatData
+
+    def delete(self, nameStr):
+        if (self.stats_data.get(nameStr)):
+            del self.stats_data[nameStr]
+

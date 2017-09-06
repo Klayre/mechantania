@@ -1,24 +1,6 @@
-from evennia import DefaultScript
-from evennia import Command
-from evennia import CmdSet
+from typeclasses.mobjects.mech_base_scripts import MechBaseScript
 
-class CmdDrink(Command):
-    key = "drink poison"
-    aliases = ["drink"]
-    locks = "cmd:all()"
-
-    def func(self):
-        # Pass the caller to the PoisonScript object
-        self.obj.do_drink(self.caller)
-
-class DefaultCmdSet(CmdSet):
-    key = "PoisonCmdSet"
-
-    def at_cmdset_creation(self):
-        "Init the cmd set"
-        self.add(CmdDrink)
-
-class PoisonScript(DefaultScript):
+class PoisonScript(MechBaseScript):
 
     def at_script_creation(self):
 
@@ -49,18 +31,21 @@ class PoisonScript(DefaultScript):
 
     def at_repeat(self):
         # This is meant to be attached to the player with hp
-        if (self.obj.db.hp):
-            self.obj.db.hp -= 20
-            self.obj.msg("Your body trembles as the poison courses through "
-                         "your veins (HP: %s)." % self.obj.db.hp)
+        hp = self.obj.db.mech_character_stats_container.get_value("hp_curr")
+
+        if (hp != None):
+            hp -= 20
+            self.obj.msg("%s Your body trembles as the poison courses through "
+                         "your veins (HP: %s)." % (self.obj.name, hp))
             self.obj.location.msg_contents("%s shivers and doesn't look so"
                                            "good." % self.obj.name,
                                            exclude=self.obj)
-            if (self.obj.db.hp <= 0):
-                self.obj.db.hp = 100
+            if (hp <= 0):
+                hp = 100
                 self.obj.msg("You DIE.  Not.")
                 self.stop()
 
+        self.obj.db.mech_character_stats_container.set_value("hp_curr", hp)
 
 
 

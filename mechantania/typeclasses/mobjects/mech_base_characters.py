@@ -2,6 +2,43 @@ from evennia import DefaultCharacter
 from world.stats.mech_base_stats import MechBaseStatContainer
 import re
 
+## Subclass of MechBaseStatsContainer that contains stats common
+## to all characters.
+#class MechCharacterStatContainer(MechBaseStatContainer):
+#
+#    def __init__(self, initCharacterStats):
+#        # Required stats for a character
+#        # Make sure to define a property for it at end of this
+#        # class to make it easily accessible.
+#        required_stats = ["hp"]
+#        name = "Base character stats"
+#
+#        for st in required_stats:
+#            if (initCharacterStats.get(st) == None):
+#                print("HP is required!")
+#                # TODO log error about not having required stats.
+#
+#        super(MechCharacterStatContainer, self).__init__(name, initCharacterStats)
+#
+#    ### Properties for common stats.
+#    ###
+#    @property
+#    def hp(self):
+#        return self.get("hp")
+#
+#    @hp.setter
+#    def hp(self, val):
+#        return self.set("hp", val)
+from evennia.utils import lazy_property
+from world.stats.traits import TraitHandler
+
+#class MechCharacterStats:
+#
+#    def __init__(self, ownerCharacter):
+#        self.char = ownerCharacter
+#
+#    # Base stats of the character
+
 class MechBaseCharacter(DefaultCharacter):
     """
     The Character defaults to reimplementing some of base Object's hook methods with the
@@ -25,13 +62,7 @@ class MechBaseCharacter(DefaultCharacter):
 
     def at_object_creation(self):
         "This is called when object is first created, only."
-
-        # Initial stats for a character.
-        initStats = {"hp_curr" : 100,
-                     "hp_max"  : 100}
-
-        # Stats
-        self.db.mech_character_stats_container = MechBaseStatContainer(initStats)
+        pass
 
     def at_before_move(self, dest):
 
@@ -117,3 +148,7 @@ class MechBaseCharacter(DefaultCharacter):
                                              nofound_string,
                                              multimatch_string,
                                              use_dbref)
+
+    @lazy_property
+    def stats_base(self):
+        return TraitHandler(self, db_attribute='stats_base')

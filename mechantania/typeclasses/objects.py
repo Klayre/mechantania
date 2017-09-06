@@ -10,7 +10,7 @@ the other types, you can do so by adding this as a multiple
 inheritance.
 
 """
-from mobjects.mech_base_objects import MechBaseObjects
+from mobjects.mech_base_objects import MechBaseObject
 
 class Object(MechBaseObject):
     """
@@ -159,4 +159,4 @@ class Object(MechBaseObject):
                                  object speaks
 
      """
-     pass
+    pass
