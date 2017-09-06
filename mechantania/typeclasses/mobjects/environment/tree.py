@@ -28,6 +28,13 @@ class Tree(DefaultObject):
         desc = "A large tree."
         self.db.desc = desc
 
+        # UTF character found on
+        # http://graphemica.com/characters/tags/trees
+        # There are actually multiple trees on there!
+        # The below is just the default.
+        self.db.map_symbol = u'\U0001F333'.encode('utf-8')
+#        self.db.map_symbol = unichr(9786).encode('utf-8')
+
         # no commands at this time
         #self.cmdset.add_default(treeCmdSet, permanent = True)
 

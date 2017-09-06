@@ -1,47 +1,16 @@
 from evennia import DefaultCharacter
+from typeclasses.rooms import Room
 from world.stats.mech_base_stats import MechBaseStatContainer
+from utils.map import Mapper
+
 import re
 
-## Subclass of MechBaseStatsContainer that contains stats common
-## to all characters.
-#class MechCharacterStatContainer(MechBaseStatContainer):
-#
-#    def __init__(self, initCharacterStats):
-#        # Required stats for a character
-#        # Make sure to define a property for it at end of this
-#        # class to make it easily accessible.
-#        required_stats = ["hp"]
-#        name = "Base character stats"
-#
-#        for st in required_stats:
-#            if (initCharacterStats.get(st) == None):
-#                print("HP is required!")
-#                # TODO log error about not having required stats.
-#
-#        super(MechCharacterStatContainer, self).__init__(name, initCharacterStats)
-#
-#    ### Properties for common stats.
-#    ###
-#    @property
-#    def hp(self):
-#        return self.get("hp")
-#
-#    @hp.setter
-#    def hp(self, val):
-#        return self.set("hp", val)
 from evennia.utils import lazy_property
 from world.stats.traits import TraitHandler
 
-#class MechCharacterStats:
-#
-#    def __init__(self, ownerCharacter):
-#        self.char = ownerCharacter
-#
-#    # Base stats of the character
-
 class MechBaseCharacter(DefaultCharacter):
     """
-    The Character defaults to reimplementing some of base Object's hook methods with the
+    The MechBaseCharacter defaults to reimplementing some of base Object's hook methods with the
     following functionality:
 
     at_basetype_setup - always assigns the DefaultCmdSet to this object type
@@ -60,24 +29,31 @@ class MechBaseCharacter(DefaultCharacter):
 
     """
 
-    def at_object_creation(self):
-        "This is called when object is first created, only."
-        pass
+##    def at_object_creation(self):
+##        "This is called when object is first created, only."
+##
+##        pass
 
     def at_before_move(self, dest):
 
         """
-        Checks the room doesn't have any objects with mIsBlocking property
+        Preferm pre-move steps.
+
+        * Checks the room doesn't have any objects with mIsBlocking property.
+          If it does, then it will return False so that player can not move
+          there, unless they are an importal.
         """
         isBlocked = False
 
         # Search all objects in room
         allObjects = (con for con in dest.contents)
 
-        # Filter out just things
-        allBlockingObjects = []
+        roomBlockingObjects = dest.get_blocking_objects()
 
-        for con in allObjects:
+        # Filter out just things that actually block character
+        actualBlockingObjects = []
+
+        for con in roomBlockingObjects:
             if (hasattr(con.db, 'mIsBlocking') and con.db.mIsBlocking):
                 isImmortal = False
                 
@@ -86,19 +62,22 @@ class MechBaseCharacter(DefaultCharacter):
 
                 if (not isImmortal):
                     # Only block non-immortals
-                    allBlockingObjects.append(con)
+                    actualBlockingObjects.append(con)
                     self.msg("A %s blocks your path." % con.name)
                 else:
                     self.msg("You would have been blocked by a %s, but you are an "
                              "IMMORTAL!" % con.name)
 
-        if (len(allBlockingObjects) != 0):
+        if (len(actualBlockingObjects) != 0):
             return False
 
         # Otherwise just do normal movement.
         return super(MechBaseCharacter, self).at_before_move(dest)
 
      # Overload "search" to also allow the syntax <exit>.<object>
+
+    def at_object_creation(self):
+        self.db.map_symbol = u'\u263b'.encode('utf-8')
 
     def search(self, searchdata,
                global_search=False,
@@ -148,6 +127,18 @@ class MechBaseCharacter(DefaultCharacter):
                                              nofound_string,
                                              multimatch_string,
                                              use_dbref)
+    def at_look(self, target):
+        desc = super(MechBaseCharacter, self).at_look(target)
+
+        self.msg(type(target))
+        if (type(target) == Room):
+            # Print out the map
+            mapper = Mapper()
+            mapper.generate_map(target) 
+            
+            desc = desc + "\n" + str(mapper)
+
+        return desc
 
     @lazy_property
     def stats_base(self):
