@@ -44,6 +44,13 @@ class Mapper():
         """
         return self.map[local_coords[0]][local_coords[1]] != NO_ROOM_CHAR
 
+    def is_valid_coords(self, coords):
+        if ((coords[0] < 0) or (coords[0] >= MAP_SIZE_W) or
+            (coords[1] < 0) or (coords[1] >= MAP_SIZE_W)):
+            return False
+
+        return True
+
     def do_cell_recursive(self, room, prevRoom, local_coords, do_recurse=True):
 
         # TODO: If db.map_symbol does not exist, this leads to strange things.
@@ -64,28 +71,28 @@ class Mapper():
 
                     # Make sure have not already visited this room
                     # on another path...
-                    if (not self.has_room(newCoords)):
+                    if (self.is_valid_coords(newCoords) and not self.has_room(newCoords)):
                         self.do_cell_recursive(ex.destination, room, newCoords)
                 if (ex.key == "east" and ex.destination != prevRoom):
                     newCoords = (local_coords[0]+1, local_coords[1])
 
                     # Make sure have not already visited this room
                     # on another path...
-                    if (not self.has_room(newCoords)):
+                    if (self.is_valid_coords(newCoords) and not self.has_room(newCoords)):
                         self.do_cell_recursive(ex.destination, room, newCoords)
                 if (ex.key == "south" and ex.destination != prevRoom):
                     newCoords = (local_coords[0], local_coords[1]-1)
 
                     # Make sure have not already visited this room
                     # on another path...
-                    if (not self.has_room(newCoords)):
+                    if (self.is_valid_coords(newCoords) and not self.has_room(newCoords)):
                         self.do_cell_recursive(ex.destination, room, newCoords)
                 if (ex.key == "west" and ex.destination != prevRoom):
                     newCoords = (local_coords[0]-1, local_coords[1])
 
                     # Make sure have not already visited this room
                     # on another path...
-                    if (not self.has_room(newCoords)):
+                    if (self.is_valid_coords(newCoords) and not self.has_room(newCoords)):
                         self.do_cell_recursive(ex.destination, room, newCoords)
         
         pass

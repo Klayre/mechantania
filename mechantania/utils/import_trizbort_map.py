@@ -10,8 +10,39 @@ import evennia
 
 from typeclasses.rooms import Room
 from typeclasses.exits import Exit
+import re
 
 import xml.etree.ElementTree as ET
+
+# Checks for special room, and if so, returns special attribute.
+def check_for_special_room(roomNode):
+    roomName = roomNode.attrib.get("name")
+
+    if not roomName:
+        raise Exception("Invalid room name on special")
+        return None
+
+    m = re.search("special:(.+?)", roomName)
+
+    if m:
+        return m.group(1)
+
+    return None
+
+def get_special_room_attrib(roomNode, attribName):
+    roomSubtitle = roomNode.attrib.get("subtitle")
+
+    if not roomSubtitle:
+        raise Exception("Invalid room name on subtitle")
+        return None
+
+    searchString = attribName + ":(.+)"
+    m = re.search(searchString, roomSubtitle)
+
+    if m:
+        return m.group(1)
+
+    return None
 
 def construct_world(filename):
     tree = ET.parse(filename)
@@ -70,13 +101,22 @@ def construct_world(filename):
     mechRooms = {}
 
     for roomId, roomNode in xmlRooms.iteritems():
-        mechRooms[roomId] = create_mech_room_from_xml(roomNode)
-        print(mechRooms[roomId])
-        print(mechRooms[roomId].id)
-
+        if not check_for_special_room(roomNode):
+            mechRooms[roomId] = create_mech_room_from_xml(roomNode)
+            print(mechRooms[roomId])
+            print(mechRooms[roomId].id)
+        else:
+            print("Found a special room")
+            toRoomName = get_special_room_attrib(roomNode, "to")
+            print("special room name: %s" % toRoomName)
+            if not (toRoomName):
+                raise Exception("Invalid special attribute!")
+            toRoom = Room.objects.search_object(toRoomName)[0]
+            print("toRoom = %s" % toRoom)
+            mechRooms[roomId] = toRoom
 
     for exitId, exitNode in xmlExits.iteritems():
-        create_room_exits_from_xml(exitNode, mechRooms)
+        create_room_exits_from_xml(exitNode, xmlRooms, mechRooms)
 
     # Return the starting room.
     return mechRooms[startRoomId]
@@ -133,34 +173,60 @@ def get_cardinal_name_and_aliases_from_dock_node(dock):
 
     return retList
 
-def create_room_exits_from_xml(xml_exit_node, mechRoomsDict):
+def get_named_exit_from_line(xml_line_node):
+    lineName = xml_line_node.attrib.get("name")
+    #TODO: Aliases.
+    #TODO: Exit description
+
+    return [lineName]
+
+def create_room_exits_from_xml(xml_exit_node, xml_rooms_dict, mechRoomsDict):
     # Create the exits
+    #TODO: ONE-WAY EXITS! This is useful for non-cardinal direction exits which
+    # might have different discriptions on either side of the exit...
 
     # A list - First 2 entries are source and destination.
-    roomSrcDist = []
+    roomsSrcDest = []
 
     # Get the ids. Each "dock" has ids in continous order for a single exit,
     # so store in a list.
     dockNodes = {}
     for child in xml_exit_node:
-        print("dock node:\n")
-        print(child)
         if (child.tag == "dock"):
-            dockNodes[child.attrib.get("index")] = child 
-            roomSrcDist.append(child.attrib.get("id"))
-            print(dockNodes[child.attrib.get("index")])
+            dockIndex = child.attrib.get("index")
+            dockNodes[dockIndex] = child 
 
-    print(roomSrcDist)
+            roomId = child.attrib.get("id")
+            roomsSrcDest.append(mechRoomsDict[roomId])
+
     # Create exits on both rooms.
     for dockKey, dock in dockNodes.iteritems():
         print dock
-        exitNameList = get_cardinal_name_and_aliases_from_dock_node(dock)
+
+        exitNameList = []
+        if xml_exit_node.attrib.get("name"):
+            if (xml_exit_node.attrib.get("name") != ""):
+                # Names on exits override
+                exitNameList = get_named_exit_from_line(xml_exit_node)
+
+        if (len(exitNameList) == 0):
+            exitNameList = get_cardinal_name_and_aliases_from_dock_node(dock)
 
         dockIndex = int(dock.attrib.get("index"))
  
         # TODO Tags?
-        srcRoom = mechRoomsDict[roomSrcDist[dockIndex]]
-        dstRoom = mechRoomsDict[roomSrcDist[(dockIndex + 1) % 2]]
+        srcRoom = roomsSrcDest[dockIndex]
+        dstRoom = roomsSrcDest[(dockIndex + 1) % 2]
+
+        for exit in srcRoom.exits:
+            if exit.name == exitNameList[0]:
+                msg = "Trying to create an exit {0}:#{1} on room" \
+                      "{2}:#{3} that already has that exit " \
+                      "created!".format(exit.name, exit.id, \
+                       srcRoom.name, srcRoom.id)
+                            
+                print(msg)
+                raise Exception(msg)
 
         evennia.create_object(typeclass = "exits.Exit",
                              key=exitNameList[0],
