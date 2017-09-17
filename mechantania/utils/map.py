@@ -1,5 +1,6 @@
 # Creates a map that can be printed.
 from typeclasses.mobjects.mech_base_rooms import MechBaseRoom
+from evennia.utils import evtable
 
 # Map size in W/H
 MAP_SIZE_W = 9
@@ -65,9 +66,10 @@ class Mapper():
 #                ## Not needed since map is initialized to empty NO_ROOM_CHAR
 
         if (do_recurse):
+            # Visit the map, use coords in reverse order
             for ex in room.exits:
                 if (ex.key == "north" and ex.destination != prevRoom):
-                    newCoords = (local_coords[0], local_coords[1]+1)
+                    newCoords = (local_coords[0], local_coords[1]-1)
 
                     # Make sure have not already visited this room
                     # on another path...
@@ -81,7 +83,7 @@ class Mapper():
                     if (self.is_valid_coords(newCoords) and not self.has_room(newCoords)):
                         self.do_cell_recursive(ex.destination, room, newCoords)
                 if (ex.key == "south" and ex.destination != prevRoom):
-                    newCoords = (local_coords[0], local_coords[1]-1)
+                    newCoords = (local_coords[0], local_coords[1]+1)
 
                     # Make sure have not already visited this room
                     # on another path...
@@ -121,6 +123,6 @@ class Mapper():
             retStr += "\n"
             for x in range(MAP_SIZE_W):
                 # format to 2 char
-                retStr += '{: <2}'.format(self.map[x][(MAP_SIZE_W - 1) - y])
+                retStr += '{: <1}'.format(self.map[x][y])
 
         return retStr

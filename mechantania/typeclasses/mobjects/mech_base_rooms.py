@@ -22,7 +22,7 @@ class MechBaseRoom(DefaultRoom):
     """
 
     def at_object_creation(self):
-        self.db.map_symbol = "#"
+        self.db.map_symbol = ","
 
     # Returns if the room is blocked by an object or not.
     def get_blocking_objects(self):

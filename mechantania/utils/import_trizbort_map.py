@@ -4,6 +4,7 @@
 # have this set.  This room is returned.
 
 # TODO - Make this return a batch script which can be executed in-game.
+# TODO: Error check to make sure all roomsnext to each other have a link
 
 
 import evennia
@@ -11,39 +12,12 @@ import evennia
 from typeclasses.rooms import Room
 from typeclasses.exits import Exit
 import re
+import ast
 
 import xml.etree.ElementTree as ET
+import evennia.utils.spawner
 
-# Checks for special room, and if so, returns special attribute.
-def check_for_special_room(roomNode):
-    roomName = roomNode.attrib.get("name")
-
-    if not roomName:
-        raise Exception("Invalid room name on special")
-        return None
-
-    m = re.search("special:(.+?)", roomName)
-
-    if m:
-        return m.group(1)
-
-    return None
-
-def get_special_room_attrib(roomNode, attribName):
-    roomSubtitle = roomNode.attrib.get("subtitle")
-
-    if not roomSubtitle:
-        raise Exception("Invalid room name on subtitle")
-        return None
-
-    searchString = attribName + ":(.+)"
-    m = re.search(searchString, roomSubtitle)
-
-    if m:
-        return m.group(1)
-
-    return None
-
+# Main function
 def construct_world(filename):
     tree = ET.parse(filename)
     root = tree.getroot()
@@ -121,20 +95,103 @@ def construct_world(filename):
     # Return the starting room.
     return mechRooms[startRoomId]
 
+
+# Checks for special room, and if so, returns special attribute.
+def check_for_special_room(roomNode):
+    roomName = roomNode.attrib.get("name")
+
+    if not roomName:
+        raise Exception("Invalid room name on special")
+        return None
+
+    m = re.search("special:(.+?)", roomName)
+
+    if m:
+        return m.group(1)
+
+    return None
+
+def get_special_room_attrib(roomNode, attribName):
+    roomSubtitle = roomNode.attrib.get("subtitle")
+
+    if not roomSubtitle:
+        raise Exception("Invalid room name on subtitle")
+        return None
+
+    searchString = attribName + ":(.+)"
+    m = re.search(searchString, roomSubtitle)
+
+    if m:
+        return m.group(1)
+
+    return None
+
+def get_object_prototype_list(xml_room_node):
+    retList = []
+
+    for ch in xml_room_node:
+        if ch.tag == "objects":
+            objects = ch.text
+
+            print("objects : " + objects)
+            if (objects) :
+                # Strip off whitespace
+                objects.replace(" ", "")
+                # Split by "|"
+                objSubList = objects.split('|')
+
+                for o in objSubList:
+                    if (o != ""):
+                        retList.append(o)
+
+            print ("retlist:")
+            print (retList)
+
+    # Go through the objects and look for prototypes
+    return retList
+
+def spawn_objects_in_room(object_list, mech_room):
+    # Iterate over the object strings
+    for obj in object_list:
+        if (len(obj.split(":")) == 1):
+            # This is just a normal prototype name with no ":"
+            objDict = "{\"prototype\":\"" + obj + "\"}"
+        else:
+            objDict = obj
+
+        print("objDict: " + objDict)
+        object_dict = ast.literal_eval(objDict)
+
+        # Append all the data that was generated dynamically
+        # outside of the prototype
+        object_dict["location"] = mech_room.dbref
+        mech_object = evennia.utils.spawner.spawn(object_dict)
+
 def create_mech_room_from_xml(xml_room_node):
     # Create our room.
     # TODO: Use region for zone
+    subtitle = xml_room_node.attrib.get("subtitle").encode('utf-8')
     name = xml_room_node.attrib.get("name")
     desc = xml_room_node.attrib.get("description")
 
-    # TODO Allow for typeclasses to be specified
-    # TODO Allow for locks/permissions to be specified
-    # TODO Allow for aliases to be specified
-    # TODO Allow for mapsymbol to be specified
+    if (subtitle):
+        if (subtitle != ""):
+            # a prototype was given, spawn from the prototype instead
+            roomProtoDict = {"prototype":subtitle, "key":name, "desc":desc}    
+            roomObject = evennia.utils.spawner.spawn(roomProtoDict)[0]
+    else:        
+        # TODO Allow for locks/permissions to be specified
+        # TODO Allow for aliases to be specified
+        # TODO Allow for mapsymbol to be specified
+        roomObject = evennia.create_object(typeclass = "rooms.Room", key=name)
+        roomObject.db.desc = desc
 
-    roomObject = evennia.create_object(typeclass = "rooms.Room", key=name)
-    roomObject.db.desc = desc
 
+    # Spawn object
+    object_list = get_object_prototype_list(xml_room_node)
+    spawn_objects_in_room(object_list, roomObject)
+
+    # Spawn the objects
     return roomObject
 
 # Returns a list of primary name as first element, and aliases
@@ -173,12 +230,23 @@ def get_cardinal_name_and_aliases_from_dock_node(dock):
 
     return retList
 
-def get_named_exit_from_line(xml_line_node):
+# Returns a list where first entry is the primary name, other entries are
+# aliases (i.e. portal_to_testarea;portal;port creates primary name
+# portal_to_testarea as entry 0, and portal as entry 1, and port as
+# entry 2
+def get_named_exit_aliases_from_line(xml_line_node):
     lineName = xml_line_node.attrib.get("name")
     #TODO: Aliases.
     #TODO: Exit description
 
-    return [lineName]
+    print ("name alias %s" % lineName)
+    name_alias_list = lineName.split(';')
+
+    print(name_alias_list)
+    # strip whitespace, and empty strings
+    retList = [word.strip() for word in name_alias_list if word.strip()]
+
+    return retList
 
 def create_room_exits_from_xml(xml_exit_node, xml_rooms_dict, mechRoomsDict):
     # Create the exits
@@ -191,6 +259,12 @@ def create_room_exits_from_xml(xml_exit_node, xml_rooms_dict, mechRoomsDict):
     # Get the ids. Each "dock" has ids in continous order for a single exit,
     # so store in a list.
     dockNodes = {}
+
+
+    isOneWay = False
+    if xml_exit_node.attrib.get("flow") == "oneWay":
+        isOneWay = True
+
     for child in xml_exit_node:
         if (child.tag == "dock"):
             dockIndex = child.attrib.get("index")
@@ -203,16 +277,23 @@ def create_room_exits_from_xml(xml_exit_node, xml_rooms_dict, mechRoomsDict):
     for dockKey, dock in dockNodes.iteritems():
         print dock
 
+        dockIndex = int(dock.attrib.get("index"))
+
+        if isOneWay:
+            print "Is one way? " + str(isOneWay)
+            if dockIndex != 0:
+                continue
+
+        # Check if this is one way, and we are going the correct way.
         exitNameList = []
         if xml_exit_node.attrib.get("name"):
             if (xml_exit_node.attrib.get("name") != ""):
                 # Names on exits override
-                exitNameList = get_named_exit_from_line(xml_exit_node)
+                exitNameList = get_named_exit_aliases_from_line(xml_exit_node)
+                print(exitNameList)
 
         if (len(exitNameList) == 0):
             exitNameList = get_cardinal_name_and_aliases_from_dock_node(dock)
-
-        dockIndex = int(dock.attrib.get("index"))
  
         # TODO Tags?
         srcRoom = roomsSrcDest[dockIndex]

@@ -36,6 +36,22 @@ See the `@spawn` command and `evennia.utils.spawner` for more info.
 
 """
 
+# Rooms
+GRASSLANDS = {
+    "key" : "Grasslands", \
+    "typeclass" : "typeclasses.rooms.Room", \
+    "desc" : "A field of grass", \
+    "map_symbol" : "|g" + u"\u02F6" + "|n" # 
+}
+
+# Objects
+WALL_PLAIN = {
+    "key" : "Wall", \
+    "typeclass" : "typeclasses.mobjects.environment.wall.Wall", \
+    "desc" : "A plain wall", \
+    "map_symbol" : "#"
+}
+
 #from random import randint
 #
 #GOBLIN = {
