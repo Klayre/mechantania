@@ -1,7 +1,8 @@
 from evennia import DefaultCharacter
-from typeclasses.rooms import Room
+from typeclasses.mobjects.mech_base_rooms import MechBaseRoom 
 from world.stats.mech_base_stats import MechBaseStatContainer
 from utils.map import Mapper
+from evennia import utils
 
 import re
 
@@ -131,7 +132,7 @@ class MechBaseCharacter(DefaultCharacter):
         desc = super(MechBaseCharacter, self).at_look(target)
 
         self.msg(type(target))
-        if (type(target) == Room):
+        if (utils.inherits_from(target, MechBaseRoom)):
             # Print out the map
             mapper = Mapper()
             mapper.generate_map(target) 

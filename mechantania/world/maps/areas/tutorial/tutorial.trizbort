@@ -1,8 +1,14 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <trizbort version="1.5.9.9">
-	<info />
+	<info>
+		<title>Tutorial</title>
+		<author>Billy Clack</author>
+		<description>The tutorial region of the world.</description>
+	</info>
 	<map>
-		<room id="1" name="Test Area" subtitle="GRASSLANDS" x="-32" y="-256" w="96" h="64" region="NoRegion" handDrawn="yes" allcornersequal="yes" ellipse="no" roundedCorners="no" octagonal="no" cornerTopLeft="15" cornerTopRight="15" cornerBottomLeft="15" cornerBottomRight="15" borderstyle="Solid" isStartRoom="yes" description="You stand at the beginning of a long hallway.  The hallway walls and celings are covered with padded white foam.  The hallway extends further than the eye can see, extending so far as to collapse into a single point on the horizon." roomFill="" secondFill="" secondFillLocation="Bottom" roomBorder="" roomLargeText="" roomSmallText="" />
+		<room id="1" name="Test Area" subtitle="GRASSLANDS" x="-32" y="-256" w="96" h="64" region="NoRegion" handDrawn="yes" allcornersequal="yes" ellipse="no" roundedCorners="no" octagonal="no" cornerTopLeft="15" cornerTopRight="15" cornerBottomLeft="15" cornerBottomRight="15" borderstyle="Solid" isStartRoom="yes" description="You stand at the beginning of a long hallway.  The hallway walls and celings are covered with padded white foam.  The hallway extends further than the eye can see, extending so far as to collapse into a single point on the horizon." roomFill="" secondFill="" secondFillLocation="Bottom" roomBorder="" roomLargeText="" roomSmallText="">
+			<objects>{"connectorName":1}</objects>
+		</room>
 		<room id="2" name="Test Area" subtitle="GRASSLANDS" x="-32" y="-384" w="96" h="64" region="NoRegion" handDrawn="yes" allcornersequal="yes" ellipse="no" roundedCorners="no" octagonal="no" cornerTopLeft="15" cornerTopRight="15" cornerBottomLeft="15" cornerBottomRight="15" borderstyle="Solid" description="You stand within a tremendously long hallway.  The hallway walls and celings are covered with padded white foam.  The hallway extends further than the eye can see, extending so far as to collapse into a single point on the horizon" roomFill="" secondFill="" secondFillLocation="Bottom" roomBorder="" roomLargeText="" roomSmallText="">
 			<objects>{"prototype":"WALL_PLAIN", "mIsBlocking":False}</objects>
 		</room>
@@ -10,41 +16,12 @@
 			<dock index="0" id="1" port="n" />
 			<dock index="1" id="2" port="s" />
 		</line>
-		<room id="6" name="special:connector" subtitle="to:Limbo" x="-64" y="128" w="160" h="64" region="NoRegion" handDrawn="yes" allcornersequal="yes" ellipse="no" roundedCorners="no" octagonal="no" cornerTopLeft="15" cornerTopRight="15" cornerBottomLeft="15" cornerBottomRight="15" borderstyle="Solid" description="Connects to the main Limbo room." roomFill="" secondFill="" secondFillLocation="Bottom" roomBorder="" roomLargeText="" roomSmallText="" />
-		<room id="8" name="PortalRoom" subtitle="" x="416" y="-192" w="160" h="64" region="Region1" handDrawn="yes" allcornersequal="yes" ellipse="no" roundedCorners="no" octagonal="no" cornerTopLeft="15" cornerTopRight="15" cornerBottomLeft="15" cornerBottomRight="15" borderstyle="Solid" description="A stone fortress with only a single portal exiting." roomFill="" secondFill="" secondFillLocation="Bottom" roomBorder="" roomLargeText="" roomSmallText="" />
-		<line id="9" name="portal" description="A portal hovers, glistening with electric energy.">
-			<dock index="0" id="6" port="nne" />
-			<dock index="1" id="8" port="ssw" />
-		</line>
-		<line id="10" name="" description="">
-			<dock index="0" id="8" port="s" />
-			<dock index="1" id="11" port="n" />
-		</line>
-		<room id="11" name="Another portal room" subtitle="" x="448" y="-32" w="160" h="64" region="Region1" handDrawn="yes" allcornersequal="yes" ellipse="no" roundedCorners="no" octagonal="no" cornerTopLeft="15" cornerTopRight="15" cornerBottomLeft="15" cornerBottomRight="15" borderstyle="Solid" description="Wow this is another portal room" roomFill="" secondFill="" secondFillLocation="Bottom" roomBorder="" roomLargeText="" roomSmallText="" />
-		<room id="12" name="Another portal room" subtitle="" x="672" y="-32" w="160" h="64" region="Region1" handDrawn="yes" allcornersequal="yes" ellipse="no" roundedCorners="no" octagonal="no" cornerTopLeft="15" cornerTopRight="15" cornerBottomLeft="15" cornerBottomRight="15" borderstyle="Solid" description="Wow this is another portal room" roomFill="" secondFill="" secondFillLocation="Bottom" roomBorder="" roomLargeText="" roomSmallText="" />
-		<line id="13" name="" description="">
-			<dock index="0" id="11" port="e" />
-			<dock index="1" id="12" port="w" />
-		</line>
-		<line id="14" name="" description="">
-			<dock index="0" id="12" port="n" />
-			<dock index="1" id="15" port="s" />
-		</line>
-		<room id="15" name="PortalRoom" subtitle="" x="672" y="-224" w="160" h="64" region="Region1" handDrawn="yes" allcornersequal="yes" ellipse="no" roundedCorners="no" octagonal="no" cornerTopLeft="15" cornerTopRight="15" cornerBottomLeft="15" cornerBottomRight="15" borderstyle="Solid" description="A stone fortress with only a single portal exiting." roomFill="" secondFill="" secondFillLocation="Bottom" roomBorder="" roomLargeText="" roomSmallText="" />
-		<line id="16" name="" description="">
-			<dock index="0" id="15" port="w" />
-			<dock index="1" id="8" port="e" />
-		</line>
 		<room id="5" name="Test Room" subtitle="GRASSLANDS" x="160" y="-256" w="96" h="64" region="NoRegion" handDrawn="yes" allcornersequal="yes" ellipse="no" roundedCorners="no" octagonal="no" cornerTopLeft="15" cornerTopRight="15" cornerBottomLeft="15" cornerBottomRight="15" borderstyle="Solid" description="You stand at the beginning of a long hallway.  The hallway walls and celings are covered with padded white foam.  The hallway extends further than the eye can see, extending so far as to collapse into a single point on the horizon." roomFill="" secondFill="" secondFillLocation="Bottom" roomBorder="" roomLargeText="" roomSmallText="">
 			<objects>WALL_PLAIN</objects>
 		</room>
 		<line id="7" name="" description="">
 			<dock index="0" id="1" port="e" />
 			<dock index="1" id="5" port="w" />
-		</line>
-		<line id="4" name="" description="">
-			<dock index="0" id="1" port="s" />
-			<dock index="1" id="6" port="n" />
 		</line>
 		<room id="17" name="Test Area" subtitle="GRASSLANDS" x="-192" y="-256" w="96" h="64" region="NoRegion" handDrawn="yes" allcornersequal="yes" ellipse="no" roundedCorners="no" octagonal="no" cornerTopLeft="15" cornerTopRight="15" cornerBottomLeft="15" cornerBottomRight="15" borderstyle="Solid" description="You stand at the beginning of a long hallway.  The hallway walls and celings are covered with padded white foam.  The hallway extends further than the eye can see, extending so far as to collapse into a single point on the horizon." roomFill="" secondFill="" secondFillLocation="Bottom" roomBorder="" roomLargeText="" roomSmallText="" />
 		<line id="18" name="" description="">
@@ -70,7 +47,9 @@
 			<dock index="0" id="21" port="e" />
 			<dock index="1" id="23" port="w" />
 		</line>
-		<room id="26" name="Test Area" subtitle="GRASSLANDS" x="-192" y="-512" w="96" h="64" region="NoRegion" handDrawn="yes" allcornersequal="yes" ellipse="no" roundedCorners="no" octagonal="no" cornerTopLeft="15" cornerTopRight="15" cornerBottomLeft="15" cornerBottomRight="15" borderstyle="Solid" description="You stand at the beginning of a long hallway.  The hallway walls and celings are covered with padded white foam.  The hallway extends further than the eye can see, extending so far as to collapse into a single point on the horizon." roomFill="" secondFill="" secondFillLocation="Bottom" roomBorder="" roomLargeText="" roomSmallText="" />
+		<room id="26" name="Test Area" subtitle="GRASSLANDS" x="-192" y="-512" w="96" h="64" region="NoRegion" handDrawn="yes" allcornersequal="yes" ellipse="no" roundedCorners="no" octagonal="no" cornerTopLeft="15" cornerTopRight="15" cornerBottomLeft="15" cornerBottomRight="15" borderstyle="Solid" description="You stand at the beginning of a long hallway.  The hallway walls and celings are covered with padded white foam.  The hallway extends further than the eye can see, extending so far as to collapse into a single point on the horizon." roomFill="" secondFill="" secondFillLocation="Bottom" roomBorder="" roomLargeText="" roomSmallText="">
+			<objects>{"connectorName":2}</objects>
+		</room>
 		<room id="27" name="Test Area" subtitle="GRASSLANDS" x="-352" y="-512" w="96" h="64" region="NoRegion" handDrawn="yes" allcornersequal="yes" ellipse="no" roundedCorners="no" octagonal="no" cornerTopLeft="15" cornerTopRight="15" cornerBottomLeft="15" cornerBottomRight="15" borderstyle="Solid" description="You stand at the beginning of a long hallway.  The hallway walls and celings are covered with padded white foam.  The hallway extends further than the eye can see, extending so far as to collapse into a single point on the horizon." roomFill="" secondFill="" secondFillLocation="Bottom" roomBorder="" roomLargeText="" roomSmallText="" />
 		<line id="28" name="" description="">
 			<dock index="0" id="27" port="e" />
@@ -106,33 +85,6 @@
 		<line id="37" name="" description="">
 			<dock index="0" id="31" port="e" />
 			<dock index="1" id="19" port="w" />
-		</line>
-		<room id="39" name="Test Area" subtitle="GRASSLANDS" x="-192" y="-128" w="96" h="64" region="NoRegion" handDrawn="yes" allcornersequal="yes" ellipse="no" roundedCorners="no" octagonal="no" cornerTopLeft="15" cornerTopRight="15" cornerBottomLeft="15" cornerBottomRight="15" borderstyle="Solid" description="You stand at the beginning of a long hallway.  The hallway walls and celings are covered with padded white foam.  The hallway extends further than the eye can see, extending so far as to collapse into a single point on the horizon." roomFill="" secondFill="" secondFillLocation="Bottom" roomBorder="" roomLargeText="" roomSmallText="" />
-		<room id="40" name="Test Area" subtitle="GRASSLANDS" x="-352" y="-128" w="96" h="64" region="NoRegion" handDrawn="yes" allcornersequal="yes" ellipse="no" roundedCorners="no" octagonal="no" cornerTopLeft="15" cornerTopRight="15" cornerBottomLeft="15" cornerBottomRight="15" borderstyle="Solid" description="You stand at the beginning of a long hallway.  The hallway walls and celings are covered with padded white foam.  The hallway extends further than the eye can see, extending so far as to collapse into a single point on the horizon." roomFill="" secondFill="" secondFillLocation="Bottom" roomBorder="" roomLargeText="" roomSmallText="" />
-		<room id="41" name="Test Area" subtitle="GRASSLANDS" x="-512" y="-128" w="96" h="64" region="NoRegion" handDrawn="yes" allcornersequal="yes" ellipse="no" roundedCorners="no" octagonal="no" cornerTopLeft="15" cornerTopRight="15" cornerBottomLeft="15" cornerBottomRight="15" borderstyle="Solid" description="You stand at the beginning of a long hallway.  The hallway walls and celings are covered with padded white foam.  The hallway extends further than the eye can see, extending so far as to collapse into a single point on the horizon." roomFill="" secondFill="" secondFillLocation="Bottom" roomBorder="" roomLargeText="" roomSmallText="" />
-		<line id="42" name="" description="">
-			<dock index="0" id="31" port="s" />
-			<dock index="1" id="41" port="n" />
-		</line>
-		<line id="43" name="" description="">
-			<dock index="0" id="19" port="s" />
-			<dock index="1" id="40" port="n" />
-		</line>
-		<line id="44" name="" description="">
-			<dock index="0" id="17" port="s" />
-			<dock index="1" id="39" port="n" />
-		</line>
-		<line id="45" name="" description="">
-			<dock index="0" id="39" port="w" />
-			<dock index="1" id="40" port="e" />
-		</line>
-		<line id="46" name="" description="">
-			<dock index="0" id="40" port="w" />
-			<dock index="1" id="41" port="e" />
-		</line>
-		<line id="47" name="" description="">
-			<dock index="0" id="39" port="e" />
-			<dock index="1" id="6" port="w" />
 		</line>
 		<line id="48" name="" description="">
 			<dock index="0" id="23" port="e" />

@@ -17,10 +17,27 @@ import ast
 import xml.etree.ElementTree as ET
 import evennia.utils.spawner
 
+def parse_file(filename):
+    return ET.parse(filename)
+
+def get_map_name(xml_tree):
+    root = xml_tree.getroot()
+
+    mapTitle = None
+
+    for child in root:
+        if (child.tag == "info"):
+            infoRoot = child
+
+            for infoChild in infoRoot:
+                if infoChild.tag == "title":
+                    mapTitle = infoChild.text
+
+    return mapTitle
+
 # Main function
-def construct_world(filename):
-    tree = ET.parse(filename)
-    root = tree.getroot()
+def construct_world(xml_tree):
+    root = xml_tree.getroot()
 
     print(root)
     print(root.attrib)
@@ -49,6 +66,21 @@ def construct_world(filename):
     # Dict of exits by their unique ID
     xmlExits = {}
 
+    # Gets the map "title" (will be name of the zone)
+    mapTitle = None
+    mapAuthor = None
+    mapDescription = None
+
+    for child in infoRoot:
+        if child.tag == "title":
+            mapTitle = child.text
+        if child.tag == "author":
+            mapAuthor = child.text
+        if child.tag == "description":
+            mapDescription = child.text
+
+    if not mapTitle or not mapAuthor or not mapDescription:
+        raise Exception("Map needs to have title, author , and description.")
 
     for child in mapRoot:
         childId = child.attrib["id"]
@@ -75,19 +107,14 @@ def construct_world(filename):
     mechRooms = {}
 
     for roomId, roomNode in xmlRooms.iteritems():
-        if not check_for_special_room(roomNode):
-            mechRooms[roomId] = create_mech_room_from_xml(roomNode)
-            print(mechRooms[roomId])
-            print(mechRooms[roomId].id)
-        else:
-            print("Found a special room")
-            toRoomName = get_special_room_attrib(roomNode, "to")
-            print("special room name: %s" % toRoomName)
-            if not (toRoomName):
-                raise Exception("Invalid special attribute!")
-            toRoom = Room.objects.search_object(toRoomName)[0]
-            print("toRoom = %s" % toRoom)
-            mechRooms[roomId] = toRoom
+        specialAttrib = check_for_special_room(roomNode)
+        mechRooms[roomId] = create_mech_room_from_xml(roomNode,
+                                                      zoneName = mapTitle,
+                                                      zoneAuthor = mapAuthor,
+                                                      zoneDescription = mapDescription,
+                                                      specialAttrib=specialAttrib)
+        print(mechRooms[roomId])
+        print(mechRooms[roomId].id)
 
     for exitId, exitNode in xmlExits.iteritems():
         create_room_exits_from_xml(exitNode, xmlRooms, mechRooms)
@@ -111,20 +138,31 @@ def check_for_special_room(roomNode):
 
     return None
 
-def get_special_room_attrib(roomNode, attribName):
+# Returns a dictionary of {zoneDestination="zone destination", connectorID="connectorID"}
+def get_special_room_attrib(roomNode):
     roomSubtitle = roomNode.attrib.get("subtitle")
 
     if not roomSubtitle:
         raise Exception("Invalid room name on subtitle")
         return None
 
-    searchString = attribName + ":(.+)"
+    searchString = "(.+) *: *(.+)"
     m = re.search(searchString, roomSubtitle)
 
     if m:
-        return m.group(1)
+        zoneDestination = m.group(1)
+        connectorName = m.group(2)
 
-    return None
+        if (zoneDestination and connectorName):
+            retDict = {"zoneDestination":zoneDestination,
+                       "connectorName":connectorName}
+    else:
+        id = int(roomNode.attrib["id"])
+        raise Exception("special connector room id %d doesn't have proper "
+                        "subtitle." % (id))
+        retDict = None
+
+    return retDict
 
 def get_object_prototype_list(xml_room_node):
     retList = []
@@ -150,35 +188,55 @@ def get_object_prototype_list(xml_room_node):
     # Go through the objects and look for prototypes
     return retList
 
-def spawn_objects_in_room(object_list, mech_room):
+# Spawn all objects in room, except for "special" objects.
+# Returns a list of dicts for all objects spawned.
+def handle_objects_in_room(object_list, mech_room):
+    ret_obj_list = []
+
     # Iterate over the object strings
     for obj in object_list:
         if (len(obj.split(":")) == 1):
             # This is just a normal prototype name with no ":"
-            objDict = "{\"prototype\":\"" + obj + "\"}"
+            objDictStr = "{\"prototype\":\"" + obj + "\"}"
         else:
-            objDict = obj
+            objDictStr = obj
 
-        print("objDict: " + objDict)
-        object_dict = ast.literal_eval(objDict)
+        print("objDictStr: " + objDictStr)
+        object_dict = ast.literal_eval(objDictStr)
 
-        # Append all the data that was generated dynamically
-        # outside of the prototype
-        object_dict["location"] = mech_room.dbref
-        mech_object = evennia.utils.spawner.spawn(object_dict)
+        if not object_dict.get("connectorName"):
+            # Append all the data that was generated dynamically
+            # outside of the prototype
+            object_dict["location"] = mech_room.dbref
+            mech_object = evennia.utils.spawner.spawn(object_dict)
+        else:
+            # These aren't really objects, but a connector
 
-def create_mech_room_from_xml(xml_room_node):
+            # Handle this as a special room.  We tag it with a special
+            # connector tag/id
+            mech_room.tags.add("connector_to", category="map_builder")
+            mech_room.ndb.connector_name = object_dict.get("connectorName")
+
+        ret_obj_list.append(object_dict)
+
+    return ret_obj_list
+
+def create_mech_room_from_xml(xml_room_node,
+                              zoneName,
+                              zoneAuthor,
+                              zoneDescription,
+                              specialAttrib=None):
     # Create our room.
     # TODO: Use region for zone
+    # TODO: TAG AS SPECIAL ROOM
     subtitle = xml_room_node.attrib.get("subtitle").encode('utf-8')
     name = xml_room_node.attrib.get("name")
     desc = xml_room_node.attrib.get("description")
 
-    if (subtitle):
-        if (subtitle != ""):
-            # a prototype was given, spawn from the prototype instead
-            roomProtoDict = {"prototype":subtitle, "key":name, "desc":desc}    
-            roomObject = evennia.utils.spawner.spawn(roomProtoDict)[0]
+    if (subtitle and subtitle != "" and not specialAttrib):
+        # a prototype was given, spawn from the prototype instead
+        roomProtoDict = {"prototype":subtitle, "key":name, "desc":desc}    
+        roomObject = evennia.utils.spawner.spawn(roomProtoDict)[0]
     else:        
         # TODO Allow for locks/permissions to be specified
         # TODO Allow for aliases to be specified
@@ -186,10 +244,24 @@ def create_mech_room_from_xml(xml_room_node):
         roomObject = evennia.create_object(typeclass = "rooms.Room", key=name)
         roomObject.db.desc = desc
 
+    # Zones
+    print("zone: %s", zoneName)
+    roomObject.tags.add(zoneName, category="zone", data=zoneDescription)
+    # Adds the author tag, but then sets data to the zone name
+    roomObject.tags.add(zoneAuthor, category="zone_author", data=zoneName)
+
+    if specialAttrib:
+        connectorDict = get_special_room_attrib(xml_room_node)
+
+        print("special room found connecting to zone %s , connector name %s" %
+              (connectorDict["zoneDestination"], connectorDict["connectorName"]))
+
+        roomObject.tags.add("connector_from", category="map_builder")
+        roomObject.db.map_builder_connector_dict = connectorDict
 
     # Spawn object
     object_list = get_object_prototype_list(xml_room_node)
-    spawn_objects_in_room(object_list, roomObject)
+    handle_objects_in_room(object_list, roomObject)
 
     # Spawn the objects
     return roomObject

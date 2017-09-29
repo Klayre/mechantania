@@ -30,4 +30,21 @@ class Character(MechBaseCharacter):
     at_post_puppet - Echoes "PlayerName has entered the game" to the room.
 
     """
+    def at_after_move(self, source_location):
+        """
+        DefaultCharacter at_after_move is to look around after
+        a move.  But we moved this to Room::at_object_receive
+        instead.
+        """
     pass
+
+class Npc(Character):
+    def at_char_entered(self, character):
+        """
+        A simple is_agressive check
+        Can be expanded later
+        """
+        if self.db.is_aggressive:
+            self.execute_cmd("say Graaah, die %s" % character)
+        else:
+            self.execute_cmd("say Greetings, %s" % character)
