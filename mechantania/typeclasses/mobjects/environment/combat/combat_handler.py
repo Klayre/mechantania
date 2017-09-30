@@ -1,7 +1,7 @@
 import random
 from typeclasses.scripts import Script
 
-class CombatHandler(DefaultScript):
+class CombatHandler(Script):
     """
     This implements the combat handler.
     """
@@ -30,7 +30,7 @@ class CombatHandler(DefaultScript):
         and combat cmdset on a character
         """
         character.ndb.combat_handler = self
-        character.cmdset.add("commands.combat.CombatCmdSet")
+        character.cmdset.add("commands.combat.combat.CombatCmdSet")
 
     def _cleanup_character(self, character):
         """
@@ -42,7 +42,7 @@ class CombatHandler(DefaultScript):
         del self.db.turn_actions[dbref]
         del self.db.action_count[dbref]        
         del character.ndb.combat_handler
-        character.cmdset.delete("commands.combat.CombatCmdSet")
+        character.cmdset.delete("commands.combat.combat.CombatCmdSet")
 
     def at_start(self):
         """

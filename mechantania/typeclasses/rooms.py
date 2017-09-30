@@ -26,7 +26,7 @@ class Room(MechBaseRoom):
             pass
         else:
             if utils.inherits_from(obj, Character):
-                # A player character has entered.
+                # An account character has entered.
                 # Cause the character to look around
 
                 # Note this used to be in "at_after_move"

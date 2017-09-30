@@ -1,4 +1,7 @@
 from evennia import Command
+from evennia import create_script
+from evennia import default_cmds
+from evennia.commands.cmdset import CmdSet
 
 class CmdHit(Command):
     """
@@ -238,7 +241,8 @@ class CmdAttack(Command):
             target.ndb.combat_handler.msg_all("%s joins combat!" % self.caller)
         else:
             # create a new combat handler
-            chandler = create_script("combat_handler.CombatHandler")
+            # TODO Change path of this..
+            chandler = create_script("mobjects.environment.combat.combat_handler.CombatHandler")
             chandler.add_character(self.caller)
             chandler.add_character(target)
             self.caller.msg("You attack %s! You are in combat." % target)

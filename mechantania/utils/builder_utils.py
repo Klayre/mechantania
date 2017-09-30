@@ -1,7 +1,7 @@
 import evennia.utils.search
 from typeclasses.rooms import Room
 from typeclasses.characters import Character
-from typeclasses.players import Player
+from typeclasses.accounts import Account
 from typeclasses.mobjects.mech_base_exits import MechBaseExit
 import evennia
 
@@ -28,13 +28,13 @@ def remove_all_rooms(tag=None, category=None):
             continue
         
         print "Deleting room %d / %d" % (cntr, numRooms)
-        # First delete on non-player, non-character objects in the room if
+        # First delete on non-account, non-character objects in the room if
         # their home is set to this zone.
 
         roomObjects = room.contents
         for roomObject in roomObjects:
             if (not isinstance(roomObject, Character)
-                and not isinstance(roomObject, Player)):
+                and not isinstance(roomObject, Account)):
 #                roomObject.scripts.clear()
                 print ("  Deleting object '%s'" %roomObject.name)
                 roomObject.delete()

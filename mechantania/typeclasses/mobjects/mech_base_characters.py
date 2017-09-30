@@ -19,14 +19,14 @@ class MechBaseCharacter(DefaultCharacter):
                     and its commands only be called by itself, not anyone else.
                     (to change things, use at_object_creation() instead).
     at_after_move(source_location) - Launches the "look" command after every move.
-    at_post_unpuppet(player) -  when Player disconnects from the Character, we
+    at_post_unpuppet(account) -  when Account disconnects from the Character, we
                     store the current location in the pre_logout_location Attribute and
                     move it to a None-location so the "unpuppeted" character
-                    object does not need to stay on grid. Echoes "Player has disconnected" 
+                    object does not need to stay on grid. Echoes "Account has disconnected" 
                     to the room.
-    at_pre_puppet - Just before Player re-connects, retrieves the character's
+    at_pre_puppet - Just before Account re-connects, retrieves the character's
                     pre_logout_location Attribute and move it back on the grid.
-    at_post_puppet - Echoes "PlayerName has entered the game" to the room.
+    at_post_puppet - Echoes "AccountName has entered the game" to the room.
 
     """
 
@@ -41,7 +41,7 @@ class MechBaseCharacter(DefaultCharacter):
         Preferm pre-move steps.
 
         * Checks the room doesn't have any objects with mIsBlocking property.
-          If it does, then it will return False so that player can not move
+          If it does, then it will return False so that account can not move
           there, unless they are an importal.
         """
         isBlocked = False
