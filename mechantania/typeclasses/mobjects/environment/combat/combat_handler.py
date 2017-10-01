@@ -43,6 +43,7 @@ class CombatHandler(Script):
         del self.db.action_count[dbref]        
         del character.ndb.combat_handler
         character.cmdset.delete("commands.combat.combat.CombatCmdSet")
+        character.msg("|yYour battle is over.|n")
 
     def at_start(self):
         """
@@ -93,7 +94,7 @@ class CombatHandler(Script):
         "Remove combatant from handler"
         if character.id in self.db.characters:
             self._cleanup_character(character)
-        if not self.db.characters:
+        if not self.db.characters or len(self.db.characters) < 2:
             # if no more characters in battle, kill this handler
             self.stop()
 

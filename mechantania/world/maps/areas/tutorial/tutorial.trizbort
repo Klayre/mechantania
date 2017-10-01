@@ -10,14 +10,14 @@
 			<objects>{"connectorName":1}</objects>
 		</room>
 		<room id="2" name="Test Area" subtitle="GRASSLANDS" x="-32" y="-384" w="96" h="64" region="NoRegion" handDrawn="yes" allcornersequal="yes" ellipse="no" roundedCorners="no" octagonal="no" cornerTopLeft="15" cornerTopRight="15" cornerBottomLeft="15" cornerBottomRight="15" borderstyle="Solid" description="You stand within a tremendously long hallway.  The hallway walls and celings are covered with padded white foam.  The hallway extends further than the eye can see, extending so far as to collapse into a single point on the horizon" roomFill="" secondFill="" secondFillLocation="Bottom" roomBorder="" roomLargeText="" roomSmallText="">
-			<objects>{"prototype":"WALL_PLAIN", "mIsBlocking":False}</objects>
+			<objects>{"prototype":"WALL", "mIsBlocking":False}</objects>
 		</room>
 		<line id="3" name="" description="">
 			<dock index="0" id="1" port="n" />
 			<dock index="1" id="2" port="s" />
 		</line>
 		<room id="5" name="Test Room" subtitle="GRASSLANDS" x="160" y="-256" w="96" h="64" region="NoRegion" handDrawn="yes" allcornersequal="yes" ellipse="no" roundedCorners="no" octagonal="no" cornerTopLeft="15" cornerTopRight="15" cornerBottomLeft="15" cornerBottomRight="15" borderstyle="Solid" description="You stand at the beginning of a long hallway.  The hallway walls and celings are covered with padded white foam.  The hallway extends further than the eye can see, extending so far as to collapse into a single point on the horizon." roomFill="" secondFill="" secondFillLocation="Bottom" roomBorder="" roomLargeText="" roomSmallText="">
-			<objects>WALL_PLAIN</objects>
+			<objects>WALL</objects>
 		</room>
 		<line id="7" name="" description="">
 			<dock index="0" id="1" port="e" />

@@ -66,7 +66,7 @@ class MechBaseCharacter(DefaultCharacter):
                     actualBlockingObjects.append(con)
                     self.msg("A %s blocks your path." % con.name)
                 else:
-                    self.msg("You would have been blocked by a %s, but you are an "
+                    self.msg("|yWARNING:|n You would have been blocked by a %s, but you are an "
                              "IMMORTAL!" % con.name)
 
         if (len(actualBlockingObjects) != 0):

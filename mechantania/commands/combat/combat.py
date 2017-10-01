@@ -2,6 +2,7 @@ from evennia import Command
 from evennia import create_script
 from evennia import default_cmds
 from evennia.commands.cmdset import CmdSet
+from evennia.commands.default import help
 
 class CmdHit(Command):
     """
@@ -180,6 +181,7 @@ class CmdDisengage(Command):
 
     def func(self):
         "Implements the command"
+
         if not self.args:
             self.caller.msg("Usage: disengage <target>")
             return
@@ -198,6 +200,23 @@ class CmdDisengage(Command):
         # tell the handler to check if turn is over
         self.caller.ndb.combat_handler.check_end_turn()
 
+class CmdBackout(Command):
+    """
+    Backs out of combat.
+
+    usage:
+        backout
+
+    USED ONLY FOR TESTING.
+    Will remove the character from the combat handler.
+    """
+    key = "backout"
+    help_category = "combat"
+
+    def func(self):
+        self.caller.msg("You backout from combat...")
+        self.caller.ndb.combat_handler.remove_character(self.caller)
+
 class CombatCmdSet(CmdSet):
     key = "combat_cmdset"
     mergetype = "Replace"
@@ -210,8 +229,14 @@ class CombatCmdSet(CmdSet):
         self.add(CmdFeint())
         self.add(CmdDefend())
         self.add(CmdDisengage())
+        self.add(CmdBackout())
         self.add(default_cmds.CmdPose())
         self.add(default_cmds.CmdSay())
+        self.add(default_cmds.CmdHelp())
+
+        # The help system
+        self.add(help.CmdHelp())
+        self.add(help.CmdSetHelp())
 
 class CmdAttack(Command):
     """

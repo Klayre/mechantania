@@ -45,11 +45,18 @@ GRASSLANDS = {
 }
 
 # Objects
-WALL_PLAIN = {
+WALL = {
     "key" : "Wall", \
     "typeclass" : "typeclasses.mobjects.environment.wall.Wall", \
     "desc" : "A plain wall", \
     "map_symbol" : "#"
+}
+
+TREE = {
+    "key" : "Tree", \
+    "typeclass" : "typeclasses.object", \
+    "desc" : "A simple tree", \
+    "map_symbol" : "|g" + "T" + "|n"
 }
 
 #from random import randint
