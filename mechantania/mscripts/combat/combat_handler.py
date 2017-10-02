@@ -1,6 +1,45 @@
 import random
 from typeclasses.scripts import Script
 
+#TODO: Message actions to room.
+
+
+class HitType:
+    UNARMED = 1
+
+def HitTargets(char, targets):
+    target = None
+
+    if (type(targets) == list):
+        if (len(targets) == 0):
+            raise ValueError("Targets must not be empty!")
+        if len(targets) > 1:
+            char.msg("|rWARNING|n: Can't hit more than one target currently. " \
+                     "Defaulting to first target.")
+        target = targets[0]
+    else:
+        target = targets
+
+    # Determine type of hit by checking weapon that char is weilding.
+    # TODO: Implement this after implementing weapons.  For now just
+    # punch.
+    # TODO: Move this to its own module.
+    hitType = HitType.UNARMED
+
+    if hitType == HitType.UNARMED:
+        # Move this to its own module.
+        charHitMsg = "punch"
+        targetHitMsg = "punches"
+    else:
+        raise ValueError("Invalid hittype")
+
+    # TODO: You should pull this from a rule book instead!
+    rollDamage = random.randint(1, 1000)
+
+
+    char.msg("You {0} {1} for [{2}] damange.".format(charHitMsg, target, rollDamage))
+    target.msg("{0} {1} you for [{2}] damage.".format(char, targetHitMsg, rollDamage))
+
 # Todo: automatically target when only two characters 
 class CombatHandler(Script):
     """
@@ -28,11 +67,6 @@ class CombatHandler(Script):
         # Character battle queue.  First one in queue gets to go next.
         self.db.characterQueue = []
 
-#        # store all actions for each turn
-#        self.db.turn_actions = {}
-#        # number of actions entered per combatant
-#        self.db.action_count = {}
-
     def _init_character(self, character):
         """
         This initializes handler back-reference 
@@ -54,21 +88,20 @@ class CombatHandler(Script):
         if dbref in self.db.characterQueue:
             self.db.characterQueue.remove(dbref)
 
-#        del self.db.turn_actions[dbref]
-#        del self.db.action_count[dbref]        
         del character.ndb.combat_handler
         character.cmdset.delete("commands.combat.combat.CombatCmdSet")
         character.msg("|yYour battle is over.|n")
 
-    # Gets the next dbref after this one in the characters list.
-    def _get_next_dbref_in_queue(self):
+    def _update_battle_queue(self):
         # Pop off the top, then push onto back
         charTurn = self.db.characterQueue.pop(0)
 
         self.db.characterQueue.append(charTurn)
 
-        print(self.db.characterQueue)
-        return charTurn
+        return self.db.characterQueue[0]
+
+    def _get_character_object(self, dbref):
+        return self.db.characters.get(dbref)
 
     def at_start(self):
         """
@@ -181,9 +214,10 @@ class CombatHandler(Script):
             return False
 
         targetChar = self.db.characters[targetId]
-        retMsg += "You {action} {target}".format(action=action,
-                                                 target=targetChar)
-        character.msg(retMsg) 
+
+        if (action == "hit"):
+            HitTargets(character, targetChar)
+
         self.end_turn()
 
         return True
@@ -194,8 +228,6 @@ class CombatHandler(Script):
         It then resets everything and starts the next turn. It
         is called by at_repeat().
         """        
-#        resolve_combat(self, self.db.turn_actions)
-
         if len(self.db.characters) < 2:
             # less than 2 characters in battle, kill this handler
             self.msg_all("Combat has ended")
@@ -205,13 +237,19 @@ class CombatHandler(Script):
             for character in self.db.characters.values():
                 self.db.characters[character.id] = character
 
-                # cycle to next turn.
-                self._get_next_dbref_in_queue()
-#                self.db.action_count[character.id] = 0
-#                self.db.turn_actions[character.id] = [("defend", character, None),
-#                                                  ("defend", character, None)]
-        self.msg_all("It is now {char}'s turn \
-                     ...".format(char = \
-                                 self.db.characters[self.db.characterQueue[0]]))
+            # Send messages to everyone indicating who's turn it is.
+            currChar = self._get_character_object(self.db.characterQueue[0])
+            nextChar = self._get_character_object(self._update_battle_queue())
+
+            currChar.msg("Your turn is over.  It is now {char}'s turn.".format(char = \
+                         nextChar))
+
+            nextChar.msg("It is now YOUR turn!")
+
+            for ch in self.db.characters.values():
+                if ch.id != currChar.id and ch.id != nextChar.id:
+                    ch.msg("It is now {char}'s turn.".format(char=nextChar))
+
+            
 
 
