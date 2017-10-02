@@ -1,1 +1,0 @@
-@"c:\users\scyfr\mechantania\pyenv\scripts\python.exe" "c:\users\scyfr\mechantania\pyenv\Scripts\evennia_launcher.py" %*
