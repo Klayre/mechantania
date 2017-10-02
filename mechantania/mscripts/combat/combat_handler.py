@@ -1,6 +1,7 @@
 import random
 from typeclasses.scripts import Script
 
+# Todo: automatically target when only two characters 
 class CombatHandler(Script):
     """
     This implements the combat handler.
@@ -18,11 +19,19 @@ class CombatHandler(Script):
         self.persistent = True   
 
         # store all combatants
+        # A dict of dbref : character object
         self.db.characters = {}
-        # store all actions for each turn
-        self.db.turn_actions = {}
-        # number of actions entered per combatant
-        self.db.action_count = {}
+
+        # A dict of dbref : [ targets ]
+        self.ndb.targets = {}
+
+        # Character battle queue.  First one in queue gets to go next.
+        self.db.characterQueue = []
+
+#        # store all actions for each turn
+#        self.db.turn_actions = {}
+#        # number of actions entered per combatant
+#        self.db.action_count = {}
 
     def _init_character(self, character):
         """
@@ -39,11 +48,27 @@ class CombatHandler(Script):
         """
         dbref = character.id 
         del self.db.characters[dbref]
-        del self.db.turn_actions[dbref]
-        del self.db.action_count[dbref]        
+        del self.ndb.targets[dbref]
+
+        # Remove character from queue
+        if dbref in self.db.characterQueue:
+            self.db.characterQueue.remove(dbref)
+
+#        del self.db.turn_actions[dbref]
+#        del self.db.action_count[dbref]        
         del character.ndb.combat_handler
         character.cmdset.delete("commands.combat.combat.CombatCmdSet")
         character.msg("|yYour battle is over.|n")
+
+    # Gets the next dbref after this one in the characters list.
+    def _get_next_dbref_in_queue(self):
+        # Pop off the top, then push onto back
+        charTurn = self.db.characterQueue.pop(0)
+
+        self.db.characterQueue.append(charTurn)
+
+        print(self.db.characterQueue)
+        return charTurn
 
     def at_start(self):
         """
@@ -53,6 +78,8 @@ class CombatHandler(Script):
         """
         for character in self.db.characters.values():
             self._init_character(character)
+
+        # Select a random character for turn
 
     def at_stop(self):
         "Called just before the script is stopped/destroyed."
@@ -84,15 +111,15 @@ class CombatHandler(Script):
         "Add combatant to handler"
         dbref = character.id
         self.db.characters[dbref] = character        
-        self.db.action_count[dbref] = 0
-        self.db.turn_actions[dbref] = [("defend", character, None),
-                                       ("defend", character, None)]
-        # set up back-reference
+        self.ndb.targets[dbref] = []
+        self.db.characterQueue.append(character.id)
+
         self._init_character(character)
        
     def remove_character(self, character):
         "Remove combatant from handler"
         if character.id in self.db.characters:
+            # Cleanup the character, deleting entries.
             self._cleanup_character(character)
         if not self.db.characters or len(self.db.characters) < 2:
             # if no more characters in battle, kill this handler
@@ -103,9 +130,13 @@ class CombatHandler(Script):
         for character in self.db.characters.values():
             character.msg(message)
 
-    def add_action(self, action, character, target):
+    def add_action(self, action, character):
         """
-        Called by combat commands to register an action with the handler.
+        Called by combat commands to perform an action.
+
+        If it is not character's turn, this command will do nothing.
+        If it is character's turn, this function will attempt to
+        perform the action on the character's selected targets.
 
          action - string identifying the action, like "hit" or "parry"
          character - the character performing the action
@@ -116,26 +147,46 @@ class CombatHandler(Script):
         a tuple (character, action, target). 
         """
         dbref = character.id
-        count = self.db.action_count[dbref]
-        if 0 <= count <= 1: # only allow 2 actions            
-            self.db.turn_actions[dbref][count] = (action, character, target)
-        else:        
-            # report if we already used too many actions
-            return False
-        self.db.action_count[dbref] += 1
-        return True
 
-    def check_end_turn(self):
-        """
-        Called by the command to eventually trigger 
-        the resolution of the turn. We check if everyone
-        has added all their actions; if so we call force the
-        script to repeat immediately (which will call
-        `self.at_repeat()` while resetting all timers). 
-        """
-        if all(count > 1 for count in self.db.action_count.values()):
-            self.ndb.normal_turn_end = True
-            self.force_repeat() 
+        retMsg = ""
+
+        targetId = None
+
+        # Check if this character's turn.
+        if (self.db.characterQueue[0] != character.id):
+            character.msg( "It's not your turn...")
+            return False
+
+        if len(self.ndb.targets) == 0 or len(self.ndb.targets[character.id]) == 0:
+            # TODO: Maybe have a function for each action type to pick the
+            # targets.  AOE spells might not require a single target.
+            # No targets, so pick one at random (excluding the character
+            # obviously)
+            potentialTargets = \
+                    [char for char in self.db.characters.values() if char != character]
+            randTarget = random.choice(potentialTargets)
+            targetId = randTarget.id
+
+            retMsg += "You are not targetting anyone, so targetting {target} " \
+            "at random.\n".format(target=randTarget)
+        else:
+            if character.id in self.ndb.targets:
+                targetId = self.ndb.targets[character.id][0]
+
+        if targetId == None:
+            character.msg( "|rERROR: |n problems finding a suitable target.")
+            return False
+        if targetId not in self.db.characters:
+            character.msg( "|rERROR: |n Target is not in list of combatants!")
+            return False
+
+        targetChar = self.db.characters[targetId]
+        retMsg += "You {action} {target}".format(action=action,
+                                                 target=targetChar)
+        character.msg(retMsg) 
+        self.end_turn()
+
+        return True
 
     def end_turn(self):
         """
@@ -143,7 +194,7 @@ class CombatHandler(Script):
         It then resets everything and starts the next turn. It
         is called by at_repeat().
         """        
-        resolve_combat(self, self.db.turn_actions)
+#        resolve_combat(self, self.db.turn_actions)
 
         if len(self.db.characters) < 2:
             # less than 2 characters in battle, kill this handler
@@ -153,9 +204,14 @@ class CombatHandler(Script):
             # reset counters before next turn
             for character in self.db.characters.values():
                 self.db.characters[character.id] = character
-                self.db.action_count[character.id] = 0
-                self.db.turn_actions[character.id] = [("defend", character, None),
-                                                  ("defend", character, None)]
-            self.msg_all("Next turn begins ...")
+
+                # cycle to next turn.
+                self._get_next_dbref_in_queue()
+#                self.db.action_count[character.id] = 0
+#                self.db.turn_actions[character.id] = [("defend", character, None),
+#                                                  ("defend", character, None)]
+        self.msg_all("It is now {char}'s turn \
+                     ...".format(char = \
+                                 self.db.characters[self.db.characterQueue[0]]))
 
 

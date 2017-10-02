@@ -9,6 +9,13 @@ import re
 from evennia.utils import lazy_property
 from world.stats.traits import TraitHandler
 
+# Base statistics that every character gets.
+BASE_STATS = {
+    'hp' : { 'name':'HP', 'type':'gauge', 'base':100, 'max':'base'}, 
+    'exp' : { 'name':'EXP', 'type':'gauge', 'base':0, 'max':'100' },
+    'level' : { 'name':'Level', 'type':'static', 'base':1 }
+}
+
 class MechBaseCharacter(DefaultCharacter):
     """
     The MechBaseCharacter defaults to reimplementing some of base Object's hook methods with the
@@ -30,10 +37,18 @@ class MechBaseCharacter(DefaultCharacter):
 
     """
 
-##    def at_object_creation(self):
-##        "This is called when object is first created, only."
-##
-##        pass
+    def at_object_creation(self):
+        "This is called when object is first created, only."
+
+        print("hi")
+        # Set up the stats
+        for key, kwargs in BASE_STATS.iteritems():
+            self.stats_base.add(key, **kwargs)
+
+        # TODO: Move this to a separate data file.
+        self.db.map_symbol = u'\u263b'.encode('utf-8')
+
+        return super(MechBaseCharacter, self).at_object_creation()
 
     def at_before_move(self, dest):
 
@@ -76,9 +91,6 @@ class MechBaseCharacter(DefaultCharacter):
         return super(MechBaseCharacter, self).at_before_move(dest)
 
      # Overload "search" to also allow the syntax <exit>.<object>
-
-    def at_object_creation(self):
-        self.db.map_symbol = u'\u263b'.encode('utf-8')
 
     def search(self, searchdata,
                global_search=False,

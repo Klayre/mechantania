@@ -1,5 +1,61 @@
 import random
 
+# We have 3 main combat characteristics calculated from the
+# character, character's armor/weapons, class, passive
+# abilities, etc.
+# 1. nibleness - Speed of attacks, ability to flee, ability to dodge, etc.
+# 2. defense - resistance to attacks
+# 3. offense - strength of attacks.
+
+# Armor could be:
+# There a number of slots on a character that can contain armor.
+# Each slot contributes to the nimbleness or defense of a character.
+# 
+# 0. None
+#  * +++ nimbleness
+#  * 0 defense
+# 1. Light 
+#  * ++ nimbleness 
+#  * + defense
+# 2. Medium
+#  * + nimbleness
+#  * ++ defense
+# 3. Heavy
+#  * 0 nimbleness
+#  * +++ defense
+
+# Weapons could be:
+# 0. None
+# 1. Martial (such as spiky gloves, or spiky feet, etc).
+#  * ++++ nibleness
+#  * + attack
+# 2. Stab
+#  * +++ nibleness
+#  * ++ attack
+# 3. Slice 
+#  * ++ nimbleness
+#  * +++ attack
+# 4. Slash
+#  * + nimbleness
+#  * ++++ attack
+# 5. Smash
+#  * 0 nimbleness
+#  * +++++ attack.
+
+
+# Following functions calculate the stat related to each.
+def calc_nimbleness(char):
+    # Could be affected by armor, weapon's size, etc.
+    pass
+
+def calc_defense(char):
+    # Could be affected by armor, weapon's size, etc.
+    pass
+
+def calc_offense(char):
+    # Could be affected by weapon's strength
+    pass
+
 def resolve_combat(combat_handler, actiondict):
     """
     This is called by the combat handler
