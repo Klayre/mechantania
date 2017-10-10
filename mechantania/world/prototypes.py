@@ -63,7 +63,7 @@ SWORD = {
     "key" : "sword", \
     "typeclass" : "typeclasses.objects.Equippable", \
     "desc" : "A simple sword.", \
-    "ndb_attack" : 50
+    "attack" : 50
 }
 
 

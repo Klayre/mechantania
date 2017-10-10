@@ -235,15 +235,22 @@ class Equippable(Item):
                 # Only add the stat if it doesn't exist.
                 self.stats.add(key, **kwargs)
 
-            # Check the "ndb" stat names, which might have been set through
-            # prototypes.
-            if key in self.nattributes.all():
-                stat = self.stats.get(key)
-
-                if stat is not None:
-                    stat.base = self.nattributes.get(key)
 
     def at_equip(self, equipper):
         pass
+
+    def basetype_posthook_setup(self):
+        # Check the "ndb" stat names, which might have been set through
+        # prototypes.
+
+        # Any DB stats with traits of the same name will instead set the state,
+        # and the corresponding attribute will be removed.
+        for key in self.stats.all:
+            attribValue = self.attributes.get(key)
+            if attribValue is not None:
+                stat = self.stats.get(key)
+                stat.base = attribValue
+                self.attributes.remove(key)
+
 
     # def stats(self) is inheritted from item.
