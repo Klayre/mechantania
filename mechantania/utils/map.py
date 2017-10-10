@@ -1,5 +1,5 @@
 # Creates a map that can be printed.
-from typeclasses.mobjects.mech_base_rooms import MechBaseRoom
+from typeclasses.rooms import Room
 from evennia.utils import evtable
 
 # Map size in W/H
@@ -57,7 +57,7 @@ class Mapper():
         # TODO: If db.map_symbol does not exist, this leads to strange things.
         # I think there is a bug in how i'm checking below...
         if room.attributes.has('map_symbol'):
-            if isinstance(room, MechBaseRoom):
+            if isinstance(room, Room):
                 self.map[local_coords[0]][local_coords[1]] = \
                         room.get_map_symbol()
 #                if (type(room.attributes.get('map_symbol') == str)):

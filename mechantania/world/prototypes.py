@@ -54,10 +54,19 @@ WALL = {
 
 TREE = {
     "key" : "Tree", \
-    "typeclass" : "typeclasses.object", \
+    "typeclass" : "typeclasses.objects", \
     "desc" : "A simple tree", \
     "map_symbol" : "|g" + "T" + "|n"
 }
+
+SWORD = {
+    "key" : "sword", \
+    "typeclass" : "typeclasses.objects.Equippable", \
+    "desc" : "A simple sword.", \
+    "ndb_attack" : 50
+}
+
+
 
 #from random import randint
 #

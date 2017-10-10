@@ -14,7 +14,7 @@ Create this poison with
 
  @create/drop temp.objects.poison_object.Poison
 """
-from typeclasses.mobjects.mech_base_objects import MechBaseObject
+from typeclasses.objects import Object 
 
 from commands.items.poison_commands import DefaultCmdSet as poisonCmdSet
 from mscripts.poison_script import PoisonScript
@@ -23,7 +23,7 @@ from mscripts.poison_script import PoisonScript
 #  Poison definition
 #
 
-class Poison(MechBaseObject):
+class Poison(Object):
 
     def at_object_creation(self):
         """

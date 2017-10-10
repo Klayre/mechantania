@@ -12,10 +12,10 @@ from typeclasses.rooms import Room
 
 caller.msg("Building the world...Please wait...")
 # Build test world
-#INSERT world.maps.build_areas
+#INSERT batch_code.world_builder.build_areas
 
 caller.msg("Areas built, gluing them together...Please wait...")
 # Glue the world together
-#INSERT world.maps.connect_areas
+#INSERT batch_code.world_builder.connect_areas
 
 caller.msg("World building DONE.")

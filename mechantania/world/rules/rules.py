@@ -42,6 +42,22 @@ import random
 #  * 0 nimbleness
 #  * +++++ attack.
 
+def calc_effective_stat(statName, char):
+    # Rule for calculating effective stat for the character from items/weapons.
+
+    if not hasattr(char, "equip"):
+        return 0
+
+    totalStat = 0
+
+    for slot, obj in char.equip:
+        if obj is not None:
+            # TODO : replace with stats name
+            stat = obj.stats.get(statName)
+            if stat:
+                totalStat += stat.actual
+
+    return totalStat
 
 # Following functions calculate the stat related to each.
 def calc_nimbleness(char):

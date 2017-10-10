@@ -1,6 +1,6 @@
-from typeclasses.mobjects.mech_base_scripts import MechBaseScript
+from typeclasses.scripts import Script
 
-class PoisonScript(MechBaseScript):
+class PoisonScript(Script):
 
     def at_script_creation(self):
 

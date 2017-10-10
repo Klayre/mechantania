@@ -36,7 +36,6 @@ def HitTargets(char, targets):
     # TODO: You should pull this from a rule book instead!
     rollDamage = random.randint(1, 1000)
 
-
     char.msg("You {0} {1} for [{2}] damange.".format(charHitMsg, target, rollDamage))
     target.msg("{0} {1} you for [{2}] damage.".format(char, targetHitMsg, rollDamage))
 

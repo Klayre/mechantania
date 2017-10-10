@@ -20,6 +20,7 @@ from evennia import CmdSet
 # Overloaded move commands
 from commands import movecommands
 from commands.combat import combat
+from commands.items import equip
 
 class CharacterCmdSet(default_cmds.CharacterCmdSet):
     """
@@ -47,6 +48,7 @@ class CharacterCmdSet(default_cmds.CharacterCmdSet):
         self.add(movecommands.CmdExitErrorSouthWest())
 
         self.add(combat.CmdAttack())
+        self.add(equip.CmdWear())
  
 
 class AccountCmdSet(default_cmds.AccountCmdSet):

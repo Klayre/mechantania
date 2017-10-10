@@ -12,9 +12,9 @@ just overloads its hooks to have it perform its function.
 
 """
 
-from mobjects.mech_base_scripts import MechBaseScript
+from evennia import DefaultScript
 
-class Script(MechBaseScript):
+class Script(DefaultScript):
     """
     A script type is customized by redefining some or all of its hook
     methods and variables.

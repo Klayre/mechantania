@@ -2,7 +2,7 @@ import evennia.utils.search
 from typeclasses.rooms import Room
 from typeclasses.characters import Character
 from typeclasses.accounts import Account
-from typeclasses.mobjects.mech_base_exits import MechBaseExit
+from typeclasses.exits import Exit
 import evennia
 
 
@@ -164,7 +164,7 @@ def connect_all_areas():
 
             # Now iterate over all the rooms with exits to the "from_room", and
             # set their destination to the to room.
-            for currExit in MechBaseExit.objects.all_family():
+            for currExit in Exit.objects.all_family():
                 if currExit.destination == from_room:
                     currExit.destination = to_room
 

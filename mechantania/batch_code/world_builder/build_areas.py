@@ -11,8 +11,8 @@ from utils.builder_utils import remove_all_rooms
 # The dictionary will contain key="area name",value="start room #dbref"
 # There will be a failure if either the area name or start room #dbref
 # can't be found.
-AREA_FILES = ["world/maps/areas/tutorial/tutorial.trizbort",
-              "world/maps/areas/tutorial/tutorial2.trizbort"]
+AREA_FILES = ["world/content/maps/areas/tutorial/tutorial.trizbort",
+              "world/content/maps/areas/tutorial/tutorial2.trizbort"]
 
 #CODE
 

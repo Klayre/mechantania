@@ -6,9 +6,9 @@ set and has a single command defined on itself with the same name as its key,
 for allowing Characters to traverse the exit to its destination.
 
 """
-from mobjects.mech_base_exits import MechBaseExit
+from evennia import DefaultExit
 
-class Exit(MechBaseExit):
+class Exit(DefaultExit):
     """
     Exits are connectors between rooms. Exits are normal Objects except
     they defines the `destination` property. It also does work in the
@@ -33,4 +33,29 @@ class Exit(MechBaseExit):
                                         not be called if the attribute `err_traverse` is
                                         defined, in which case that will simply be echoed.
     """
-    pass
+
+    # Override get_display_name to return whether the exit is blocked or not.
+    def get_display_name(self, looker, **kwargs):
+        defaultDispName = super(Exit, self).get_display_name(looker)
+
+        # Check if the location has any blocking items in it.
+        blockingObjs = self.destination.get_blocking_objects()
+        if (len(blockingObjs) > 0):
+            defaultDispName = defaultDispName + " [blocked by "
+            if len(blockingObjs) == 1:
+                defaultDispName = defaultDispName + "a %s]" \
+                        % blockingObjs[0].get_display_name(looker)
+            else:
+                defaultDispName = defaultDispName + "multiple objects]"
+
+        return defaultDispName
+
+    # Create overloaded return_appearance to display whole contents of
+    # destination.
+    def return_appearance(self, looker):
+        appearanceString = super(Exit, self).return_appearance(looker)
+        appearanceString = appearanceString.rstrip() + \
+                           " ==> " + \
+                           self.destination.return_appearance(looker)
+        return appearanceString
+
