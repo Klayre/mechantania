@@ -61,7 +61,7 @@ TREE = {
 
 SWORD = {
     "key" : "sword", \
-    "typeclass" : "typeclasses.objects.Equippable", \
+    "typeclass" : "world.items.Equippable", \
     "desc" : "A simple sword.", \
     "attack" : 50
 }

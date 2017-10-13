@@ -63,7 +63,7 @@ Example usage:
     > character.equip.remove(obj)
     True
 """
-from typeclasses.objects import Equippable
+from world.items import Equippable
 from evennia.utils.evtable import EvTable
 
 
