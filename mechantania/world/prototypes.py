@@ -63,7 +63,9 @@ SWORD = {
     "key" : "sword", \
     "typeclass" : "world.items.Equippable", \
     "desc" : "A simple sword.", \
-    "attack" : 50
+    "attack" : 50, \
+    "equip_size" : "heavy", \
+    "slots" : ["wield1", "wield2"]
 }
 
 

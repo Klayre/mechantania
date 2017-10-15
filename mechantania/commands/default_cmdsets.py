@@ -21,6 +21,7 @@ from evennia import CmdSet
 from commands import movecommands
 from commands.combat import combat
 from commands.items import equip
+from commands import stats
 
 class CharacterCmdSet(default_cmds.CharacterCmdSet):
     """
@@ -49,6 +50,7 @@ class CharacterCmdSet(default_cmds.CharacterCmdSet):
 
         self.add(combat.CmdAttack())
         self.add(equip.CmdWear())
+        self.add(stats.CmdStats())
  
 
 class AccountCmdSet(default_cmds.AccountCmdSet):

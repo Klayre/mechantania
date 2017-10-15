@@ -45,13 +45,12 @@ import random
 def calc_effective_stat(statName, char):
     # Rule for calculating effective stat for the character from items/weapons.
 
-    if not hasattr(char, "equip"):
-        return 0
-
     totalStat = 0
 
     for slot, obj in char.equip:
+        print "slot: {}".format(slot)
         if obj is not None:
+            print "object: {}".format(obj)
             # TODO : replace with stats name
             stat = obj.stats.get(statName)
             if stat:

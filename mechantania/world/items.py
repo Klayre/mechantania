@@ -19,6 +19,18 @@ STATS_EQUIPPABLE = {
     'level' : { 'name':'level', 'type':'static', 'base':0 },
 }
 
+def RepresentsInt(s):
+    try:
+        int(s)
+        return True
+    except ValueError:
+        return False
+
+# Light, medium, heavy armor/weapons/clothes.
+# TODO: Maybe these should be related only to weapons/armor later,
+# TODO: Turn this into a wrapper function instead
+# not to clothes.
+EQUIP_SIZES = ["none", "light", "medium", "heavy"]
 
 class Item(objects.Object):
 
@@ -67,7 +79,7 @@ class Equippable(Item):
         self.locks.add("puppet:false();wear:true()")
 
         # Default slot is armor.
-        self.db.slots = ["armor"]
+        self.db.slots = ["body"]
 
         # Attach the item stats.
         for key, kwargs in STATS_EQUIPPABLE.iteritems():
@@ -96,5 +108,23 @@ class Equippable(Item):
                 stat.base = attribValue
                 self.attributes.remove(key)
 
+        # Init internal attributes
+        self.__init_prototype_attribs()
 
-    # def stats(self) is inheritted from item.
+        print("equip size : {}".format(self.db.equip_size))
+
+
+    #
+    # Internal functions
+    #
+    def __init_prototype_attribs(self):
+        # Checks that the attributes from prototypes is valid
+        equip_size = self.attributes.get("equip_size")
+
+        # Clean equip size, either by converting to int from string or by cleaning the string.
+        if equip_size is not None:
+            equip_size = equip_size.lower()
+            if equip_size not in EQUIP_SIZES:
+                raise ValueError("Invalid equip_size param {}".format(equip_size))
+
+            self.db.equip_size = equip_size

@@ -120,13 +120,6 @@ class EquipHandler(object):
                 raise EquipException("Slot not available: {}".format(slot))
         self.obj.db.slots[slot] = item
 
-    def get(self, slot):
-        """Return the item in the named slot."""
-        if slot in self.obj.db.slots:
-            return self.obj.db.slots[slot]
-        else:
-            return None
-
     def __len__(self):
         """Returns the number of equipped objects."""
         return len(self.obj.db.slots) - len(self.empty_slots)
@@ -140,7 +133,7 @@ class EquipHandler(object):
         if not self.obj.db.slots:
             return
         for slot in self.slot_order:
-                yield slot, self.get(slot)
+            yield slot, self.get(slot)
 
     def __contains__(self, item):
         """Implement the __contains__ method."""
@@ -158,12 +151,29 @@ class EquipHandler(object):
         """Returns a list of empty slots."""
         return [k for k, v in self if v is None]
 
+    def isEquipped(self, checkObject):
+        for slot, item in self.obj.db.slots.iteritems():
+            if item == checkObject:
+                return True
+
+        return False
+
+    def get(self, slot):
+        """Return the item in the named slot."""
+        if slot in self.obj.db.slots:
+            return self.obj.db.slots[slot]
+        else:
+            return None
+
     def add(self, obj):
         """Add an object to character's equip.
 
         Args:
             obj (Equippable): the item to be equipped
         """
+        # TODO: Add exceptions to return types of errors:
+        # * no free slots
+        # * object slot is invalid
         free_slots = [sl for sl in obj.db.slots if sl in self.empty_slots]
         if not free_slots:
             return False
@@ -197,14 +207,19 @@ class EquipHandler(object):
         for slot, obj in self:
             wearName = slot
 
-            if not obj or not obj.access(looker, "view"):
+            if obj and not obj.access(looker, "view"):
                 continue
+
+            if not obj:
+                objName = "<empty>"
+            else:
+                objName = obj.name
 
             if (self.limbs):
                 # For limbs, use the named limb instead.
-                for l in self.limbs:
-                    if slot in l[1]: # Check if limb attached to slot
-                        wearName = l[0] # Set wearname to limb name.
+                for limbName, slots in self.limbs.iteritems():
+                    if slot in slots: # Check if limb attached to slot
+                        wearName = limbName # Set wearname to limb name.
 
             s_width = max(len(wearName), s_width)
 
@@ -212,7 +227,7 @@ class EquipHandler(object):
                 "  |b{slot:>{swidth}.{swidth}}|n: {item:<20.20}".format(
                     slot=wearName.capitalize(),
                     swidth=s_width,
-                    item=obj.name,
+                    item=objName,
                 )
             )
 

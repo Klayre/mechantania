@@ -1,6 +1,15 @@
 from evennia import default_cmds
 import world.rules.rules as rules
 
+class CmdInventory(default_cmds.MuxCommand):
+    locks = "cmd:all()"
+    key = "inventory"
+    aliases = ["inv"]
+
+    def func (self):
+        caller = self.caller
+        
+
 class CmdWear(default_cmds.MuxCommand):
     """ Wear an object """
     locks = "cmd:all()"
@@ -28,6 +37,10 @@ class CmdWear(default_cmds.MuxCommand):
                 caller.msg("You do not have {}".format(str(obj)))
                 return
             else:
+                for slot in obj.db.slots:
+                    if slot not in caller.db.slots:
+                        caller.msg("You can't find a suitable limb wear that.".format(slot))
+                        return
                 if (not caller.equip.add(obj)) :
                     caller.msg("You can't equip that.")
                     return

@@ -25,6 +25,20 @@ BASE_STATS = {
     'level' : { 'name':'Level', 'type':'static', 'base':1 }
 }
 
+CHARACTER_SLOTS = {
+    "wield1" : None,
+    "wield2" : None,
+    "armor1" : None,
+    "armor2" : None
+}
+
+CHARACTER_LIMBS = (
+    ("right wield", ("wield1",)),
+    ("left wield", ("wield2",)),
+    ("body", ("body",)),
+    ("legs", ("legs",)),
+)
+
 class Character(DefaultCharacter):
     """
     The Character defaults to reimplementing some of base Object's hook methods with the
@@ -49,7 +63,6 @@ class Character(DefaultCharacter):
     def at_object_creation(self):
         "This is called when object is first created, only."
 
-        print("hi")
         # Set up the stats
         if (self.stats_base):
             # this will clear out all the stats!  Is there a better way to do this?
@@ -61,18 +74,10 @@ class Character(DefaultCharacter):
         self.db.map_symbol = u'\u263b'.encode('utf-8')
 
         # For EquipmentHandler to work.
-        self.db.slots = {
-            "wield1":None,
-            "wield2":None,
-            "armor":None
-        }
+        self.db.slots = dict(CHARACTER_SLOTS)
 
-        self.db.limbs = (
-            ("right wield", ("wield1",)),
-            ("left wield", ("wield2",)),
-            ("body", ("armor",)),
-        )
-        
+        self.db.limbs = tuple(CHARACTER_LIMBS)
+
         return super(Character, self).at_object_creation()
 
     def at_before_move(self, dest):
