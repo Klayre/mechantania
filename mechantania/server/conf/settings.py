@@ -56,6 +56,17 @@ WEBSOCKET_CLIENT_PORT = 4005
 # Internal Server-Portal port. Not visible.
 AMP_PORT = 4006
 
+# Override because I don't want helppopup to be True
+WEBCLIENT_OPTIONS = {
+    "gagprompt": True,  # Gags prompt from the output window and keep them
+    # together with the input bar
+    "helppopup": False,  # Shows help files in a new popup window
+    "notification_popup": False,  # Shows notifications of new messages as
+    # popup windows
+    "notification_sound": False   # Plays a sound for notifications of new
+    # messages
+}
+
 ######################################################################
 # Settings given in secret_settings.py override those in this file.
 ######################################################################

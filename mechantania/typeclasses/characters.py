@@ -208,3 +208,7 @@ class Npc(Character):
             self.execute_cmd("say Graaah, die %s" % character)
         else:
             self.execute_cmd("say Greetings, %s" % character)
+
+# TODO: Move to utils
+# pretty-print the stats of the character.
+

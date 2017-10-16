@@ -200,10 +200,50 @@ class EquipHandler(object):
                 removed = True
         return removed
 
-    def pretty_print(self, looker):
+    def get_stat(self, statName, inobj):
+        stat = 0
+
+        objFound = False
+
+        for slot, obj in self:
+            if (inobj is obj):
+                objFound = True
+                break
+
+        if objFound == False:
+            return 0
+
+        return inobj.stats.get(statName)
+
+
+    def get_total_stat(self, statName):
+        totalStat = 0
+
+        for slot, obj in self:
+            if obj is not None:
+                stat = self.get_stat(statName, obj)
+                if stat:
+                    totalStat += stat.actual
+
+        return totalStat
+
+    def pretty_print(self, looker, filter_stats=None, print_stats = True):
         # Get the currently equipped armor/weapons.
         data = []
         s_width = 0;
+
+        table = EvTable("|wLimb|n",
+                        "|wSlot|n",
+                        "|wItem|n",
+                        "|wLevel|n",
+                        "|wRarity|n",
+                        "|wDurability|n",
+                        border = "cells")
+
+# ISSUE 1480 - still under pull request
+        if print_stats:
+            table.add_column(header="|wStats|n")
+
         for slot, obj in self:
             wearName = slot
 
@@ -211,9 +251,16 @@ class EquipHandler(object):
                 continue
 
             if not obj:
-                objName = "<empty>"
+                objString = ""
+                objLevel = ""
+                objRarity = ""
+                objDurability = ""
             else:
-                objName = obj.name
+                # construct the string for the object.
+                objString = "{name}".format(name=obj.name)
+                objLevel = obj.get_level()
+                objRarity = obj.get_rarity()
+                objDurability = "{} %".format(obj.get_durability_percentage())
 
             if (self.limbs):
                 # For limbs, use the named limb instead.
@@ -223,18 +270,24 @@ class EquipHandler(object):
 
             s_width = max(len(wearName), s_width)
 
-            data.append(
-                "  |b{slot:>{swidth}.{swidth}}|n: {item:<20.20}".format(
-                    slot=wearName.capitalize(),
-                    swidth=s_width,
-                    item=objName,
-                )
-            )
+            rowData = [wearName, slot, objString, objLevel, objRarity, objDurability]
+            if print_stats and obj is not None:
+                rowData.append(obj.pp_stats(looker=self.obj, excludeStats=["level", "rarity", "durability"]))
 
-        if len(data) <= 0:
-            return None
-        else:
-            table = EvTable(header=False, border=None, table=[data])
-            return str(table)
+            table.add_row(*rowData)
 
-        return None
+#            data.append(
+#                "  |b{slot:>{swidth}.{swidth}}|n: {item:<20.20}".format(
+#                    slot=wearName.capitalize(),
+#                    swidth=s_width,
+#                    item=objName,
+#                )
+#            )
+
+        return str(table)
+#        if len(data) <= 0:
+#            return None
+#        else:
+#            table = EvTable(header=False, border=None, table=[data])
+#            return str(table)
+

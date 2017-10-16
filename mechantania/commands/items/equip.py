@@ -60,8 +60,24 @@ class CmdWear(default_cmds.MuxCommand):
                 else:
                     caller.msg("|YYour equipment:|n\n{}".format(output))
                     totalStat = 0;
-                    totalStat = rules.calc_effective_stat("attack", caller)
-                    caller.msg("Total |rattack|n: %s" % str(totalStat))
+
+                    totalAttack = caller.equip.get_total_stat("attack")
+                    effectiveAttack = rules.calc_effective_stat("attack", caller)
+                    caller.msg("Total attack: {} (effective: {})".format(str(totalAttack), str(effectiveAttack)))
+
+                    totalDefense = caller.equip.get_total_stat("defense")
+                    effectiveDefense = rules.calc_effective_stat("defense", caller)
+                    caller.msg("Total defense: {} (effective: {})".format(str(totalDefense), str(effectiveDefense)))
+
+                    totalBulkiness = caller.equip.get_total_stat("bulkiness")
+                    effectiveBulkiness = rules.calc_effective_stat("bulkiness", caller)
+                    caller.msg("Total bulkiness: {} (effective: {})".format(str(totalBulkiness), str(effectiveBulkiness)))
+
+                    totalSpeed = caller.equip.get_total_stat("speed")
+                    effectiveSpeed = rules.calc_effective_stat("speed", caller)
+                    caller.msg("Total speed: {} (effective: {})".format(str(totalSpeed), str(effectiveSpeed)))
+
+
             else:
                 caller.msg("Can't display equipment.")
 

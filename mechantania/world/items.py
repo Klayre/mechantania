@@ -1,6 +1,7 @@
 import typeclasses.objects as objects
 from evennia.utils import lazy_property
 from world.handlers.traits import TraitHandler
+import world.rules.rules as rules
 
 STATS_NAME = "stats_item"
 
@@ -15,7 +16,7 @@ STATS_EQUIPPABLE = {
     'speed' : { 'name':'speed', 'type':'static', 'base':0 },
     'defense' : {'name':'defense', 'type':'static', 'base':0 },
     'bulkiness' : {'name':'bulkiness', 'type':'static', 'base':0 },
-    'durability' : {'name':'durability', 'type':'gauge', 'base':0, 'min':0},
+    'durability' : {'name':'durability', 'type':'gauge', 'base':100, 'min':0},
     'level' : { 'name':'level', 'type':'static', 'base':0 },
 }
 
@@ -66,6 +67,47 @@ class Item(objects.Object):
 
     def return_apearance(self, looker):
         pass
+
+    def get_level(self):
+        return self.stats.level.actual
+
+    def get_rarity(self):
+        return self.stats.rarity.actual
+
+    def get_durability_percentage(self):
+        return self.stats.durability.actual
+
+    def pp_stats(self, looker=None, excludeStats=None):
+        # Pretty print the stats of the item.
+        # excludeStats are stats that should be excluded, such as:
+        # excludeStats = ["level", "rarity"]
+        # If looker is not None, then this function will display the effective stat
+        # this item will have on the looker.
+
+        data = []
+        if excludeStats is None:
+            excludeStats = []
+
+        for statKey in self.stats.all:
+            if not (statKey.lower() in excludeStats):
+                stat = self.stats.get(statKey)
+                if stat.actual != 0:
+                    # Only print stats that have an actual value.
+
+                    if looker is not None:
+                        dataString = "{statValue} (effective: {effectiveValue})".format(
+                            statValue=stat,
+                            effectiveValue=rules.calc_effective_stat(statKey, looker, self))
+                    else:
+                        dataString = "{statValue}".format(
+                            statValue=stat)
+
+                    data.append(dataString)
+
+#        print "data: {}".format(data)
+#        table = EvTable(header=False, border=None, table=[data])
+
+        return "".join(data)
 
     @lazy_property
     def stats(self):
